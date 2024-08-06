@@ -1,0 +1,54 @@
+---
+import { cva } from "class-variance-authority";
+
+interface Props {
+    type: 'note' | 'tip' | 'important' | 'warning' | 'caution' | 'others';
+}
+const { type } = Astro.props;
+
+const calloutVariant = cva(["my-4 p-4 border-l-4"],{
+  variants: {
+    type: {
+      note: ["border-blue-500"],
+      tip: ["border-green-500"],
+      important: ["border-purple-500"],
+      warning: ["border-yellow-500"],
+      caution: ["border-red-500"],
+      others: ["border-gray-500"],
+    }
+  },
+})
+
+const calloutTitle = cva(["font-bold mb-2 mt-0"],{
+  variants: {
+    type: {
+      note: ["text-blue-500"],
+      tip: ["text-green-500"],
+      important: ["text-purple-500"],
+      warning: ["text-yellow-500"],
+      caution: ["text-red-500"],
+      others: ["text-gray-500"],
+    }
+  },
+})
+
+const typeConfig:
+  Record<Props['type'], { icon: string }>
+= {
+  note: { icon: 'ℹ️'},
+  tip: { icon: '💡' },
+  important: { icon: '🔑' },
+  warning: { icon: '⚠️'},
+  caution: { icon: '🚨' },
+  others: { icon: '🔗' },
+};
+
+const { icon } = typeConfig[type] || typeConfig.others;
+---
+
+<div class={calloutVariant({type})}>
+  <p class={calloutTitle({type})}>
+    {icon} {type.charAt(0).toUpperCase() + type.slice(1)}
+  </p>
+  <slot />
+</div>
