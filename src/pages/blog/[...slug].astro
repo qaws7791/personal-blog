@@ -10,7 +10,6 @@ import TableOfContents from "@components/TableOfContents.astro";
 import Giscus from "@components/Giscus.astro";
 import GithubCallout from "@components/GithubCallout.astro";
 
-
 export async function getStaticPaths() {
   const posts = (await getCollection("blog"))
     .filter((post) => !post.data.draft)
@@ -74,7 +73,7 @@ const { Content, headings } = await post.render();
     </div>
     {headings.length > 0 && <TableOfContents headings={headings} />}
     <article class="animate">
-      <Content components={{callout:GithubCallout}}  />
+      <Content components={{ callout: GithubCallout }} />
       <div class="mt-24">
         <PostNavigation prevPost={prevPost} nextPost={nextPost} />
       </div>
@@ -84,3 +83,87 @@ const { Content, headings } = await post.render();
     </article>
   </Container>
 </Layout>
+<script type="module" is:inline>
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+  const elementCode = ".mermaid";
+
+  const loadMermaid = function () {
+    const theme = document.documentElement.classList.contains("dark")
+      ? "dark"
+      : "default";
+    mermaid.initialize({ theme });
+    mermaid.init({ theme }, document.querySelectorAll(elementCode));
+  };
+
+  const saveOriginalData = function () {
+    return new Promise((resolve, reject) => {
+      try {
+        var els = document.querySelectorAll(elementCode),
+          count = els.length;
+        els.forEach((element) => {
+          element.setAttribute("data-original-code", element.innerHTML);
+          count--;
+          if (count == 0) {
+            resolve();
+          }
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+
+  const resetProcessed = function () {
+    return new Promise((resolve, reject) => {
+      try {
+        var els = document.querySelectorAll(elementCode),
+          count = els.length;
+        els.forEach((element) => {
+          if (element.getAttribute("data-original-code") != null) {
+            element.removeAttribute("data-processed");
+            element.innerHTML = element.getAttribute("data-original-code");
+          }
+          count--;
+          if (count == 0) {
+            resolve();
+          }
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+
+  function onClassChange(node, callback) {
+    let lastClassString = node.classList.toString();
+
+    const mutationObserver = new MutationObserver((mutationList) => {
+      for (const item of mutationList) {
+        if (item.attributeName === "class") {
+          const classString = node.classList.toString();
+          if (classString.includes("scrolled")) return;
+          if (classString !== lastClassString) {
+            callback(mutationObserver);
+            lastClassString = classString;
+            break;
+          }
+        }
+      }
+    });
+
+    mutationObserver.observe(node, { attributes: true });
+
+    return mutationObserver;
+  }
+
+  const init = () => {
+    saveOriginalData();
+
+    onClassChange(document.documentElement, (mutationObserver) => {
+      console.log("Theme changed");
+      resetProcessed().then(loadMermaid()).catch(console.error);
+    });
+  };
+  loadMermaid();
+  // document.addEventListener("DOMContentLoaded", () => init());
+</script>
