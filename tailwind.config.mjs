@@ -6,8 +6,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Geist Sans", ...defaultTheme.fontFamily.sans],
-        mono: ["Geist Mono", ...defaultTheme.fontFamily.mono],
+        sans: ["Hahmlet Variable", ...defaultTheme.fontFamily.sans],
       },
     },
   },

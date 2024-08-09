@@ -2,8 +2,7 @@
 import "../styles/global.css";
 import { ViewTransitions } from "astro:transitions";
 
-import "@fontsource/geist-sans";
-import "@fontsource/geist-mono";
+import "@fontsource-variable/hahmlet";
 
 interface Props {
   title: string;
@@ -168,8 +167,8 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
              -ms-transition: none !important;
              transition: none !important;
           }
-        `
-      )
+        `,
+      ),
     );
 
     document.head.appendChild(css);
