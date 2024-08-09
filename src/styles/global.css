@@ -42,6 +42,11 @@ article {
   @apply prose prose-neutral max-w-full dark:prose-invert prose-img:mx-auto prose-img:my-auto;
   @apply prose-headings:font-semibold;
   @apply prose-headings:text-black prose-headings:dark:text-white;
+
+}
+
+article .nodes {
+  @apply leading-normal
 }
 
 @layer utilities {
