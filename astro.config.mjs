@@ -5,8 +5,8 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import pagefind from "astro-pagefind";
 
+import remarkMermaid from "remark-mermaidjs";
 import { remarkGithubCallouts } from "./src/plugins/remark-github-callouts";
-import { remarkMermaidCharts } from "./src/plugins/remark-mermaid-charts";
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,7 +15,17 @@ export default defineConfig({
     shikiConfig: {
       theme: "css-variables",
     },
-    remarkPlugins: [remarkGithubCallouts, remarkMermaidCharts],
+    remarkPlugins: [
+      remarkGithubCallouts,
+      [
+        remarkMermaid,
+        {
+          mermaidConfig: {
+            theme: "dark",
+          },
+        },
+      ],
+    ],
   },
   integrations: [tailwind(), sitemap(), mdx(), pagefind()],
 });
