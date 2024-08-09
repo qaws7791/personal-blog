@@ -3,7 +3,6 @@ import { visit } from "unist-util-visit";
 export function remarkGithubCallouts() {
   return (tree) => {
     visit(tree, "blockquote", (node, index, parent) => {
-      console.log("node", node);
       const [firstChild] = node.children;
       if (firstChild && firstChild.type === "paragraph") {
         const [firstInline] = firstChild.children;
