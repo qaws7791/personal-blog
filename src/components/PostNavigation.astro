@@ -7,7 +7,7 @@ const { prevPost, nextPost } = Astro.props;
     prevPost?.slug ? (
       <a
         href={`/blog/${prevPost?.slug}`}
-        class="group relative flex flex-nowrap rounded-lg border border-white/20 px-4 py-3 pl-10 no-underline transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
+        class="group relative flex flex-nowrap justify-end rounded-lg border border-white/20 px-4 py-4 pl-10 no-underline transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -26,7 +26,10 @@ const { prevPost, nextPost } = Astro.props;
             class="translate-x-1 transition-transform duration-300 ease-in-out group-hover:translate-x-0 group-focus-visible:translate-x-0"
           />
         </svg>
-        <div class="flex items-center text-sm">{prevPost?.data.title}</div>
+        <div class="text-right">
+          <div class="font-semibold">이전 글</div>
+          <div class="text-sm text-white/50">{prevPost?.data.title}</div>
+        </div>
       </a>
     ) : (
       <div class="invisible" />
@@ -37,7 +40,7 @@ const { prevPost, nextPost } = Astro.props;
     nextPost?.slug ? (
       <a
         href={`/blog/${nextPost?.slug}`}
-        class="group relative flex flex-grow flex-row-reverse flex-nowrap rounded-lg border border-white/20 px-4 py-4 pr-10 no-underline transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
+        class="group relative flex flex-grow flex-row-reverse flex-nowrap justify-end rounded-lg border border-white/20 px-4 py-4 pr-10 no-underline transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -56,7 +59,10 @@ const { prevPost, nextPost } = Astro.props;
             class="-translate-x-1 transition-transform duration-300 ease-in-out group-hover:translate-x-0 group-focus-visible:translate-x-0"
           />
         </svg>
-        <div class="flex items-center text-sm">{nextPost?.data.title}</div>
+        <div class="text-left">
+          <div class="font-semibold">다음 글</div>
+          <div class="text-sm text-white/50">{nextPost?.data.description}</div>
+        </div>
       </a>
     ) : (
       <div class="invisible" />
