@@ -7,30 +7,54 @@ import { SITE } from "@consts";
 <header transition:persist>
   <Container>
     <div class="flex flex-wrap justify-between gap-y-2">
-      <Link href="/" underline={false}>
+      <Link href="/" underline={false} class="flex items-center">
         <div class="font-semibold">
           {SITE.TITLE}&nbsp;🔬
         </div>
       </Link>
-      <nav class="flex items-center gap-1 text-sm">
-        <Link href="/blog">blog</Link>
-        <span>
-          {`/`}
-        </span>
-        <Link href="/projects">projects</Link>
-        <span>
-          {`/`}
-        </span>
+      <nav class="flex items-center gap-3 text-sm">
+        <a
+          href="/blog"
+          class="flex items-center gap-1 rounded-3xl border border-white/20 bg-neutral-900 px-5 py-2 text-sm transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            style="color: currentcolor;"
+            ><path
+              d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Zm120 480h200q17 0 28.5-11.5T560-320q0-17-11.5-28.5T520-360H320q-17 0-28.5 11.5T280-320q0 17 11.5 28.5T320-280Zm0-160h320q17 0 28.5-11.5T680-480q0-17-11.5-28.5T640-520H320q-17 0-28.5 11.5T280-480q0 17 11.5 28.5T320-440Zm0-160h320q17 0 28.5-11.5T680-640q0-17-11.5-28.5T640-680H320q-17 0-28.5 11.5T280-640q0 17 11.5 28.5T320-600Z"
+              fill="currentColor"></path></svg
+          >
+          Blog</a
+        >
+
+        <!-- <a
+          href="/projects"
+          class="flex items-center gap-1 rounded border border-white/20 bg-neutral-900 px-2 py-1 text-sm transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
+          ><svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20px"
+            viewBox="0 -960 960 960"
+            width="20px"
+            style="color: currentcolor;"
+            ><path
+              d="M200-520q-33 0-56.5-23.5T120-600v-160q0-33 23.5-56.5T200-840h160q33 0 56.5 23.5T440-760v160q0 33-23.5 56.5T360-520H200Zm0 400q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h160q33 0 56.5 23.5T440-360v160q0 33-23.5 56.5T360-120H200Zm400-400q-33 0-56.5-23.5T520-600v-160q0-33 23.5-56.5T600-840h160q33 0 56.5 23.5T840-760v160q0 33-23.5 56.5T760-520H600Zm0 400q-33 0-56.5-23.5T520-200v-160q0-33 23.5-56.5T600-440h160q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H600ZM200-600h160v-160H200v160Zm400 0h160v-160H600v160Zm0 400h160v-160H600v160Zm-400 0h160v-160H200v160Zm400-400Zm0 240Zm-240 0Zm0-240Z"
+              fill="currentColor"></path></svg
+          >Projects</a
+        > -->
+
         <button
           id="magnifying-glass"
           aria-label="Search"
-          class="flex items-center rounded border border-white/20 bg-neutral-900 px-2 py-1 text-xs transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
+          class="flex items-center justify-center gap-1 rounded-full border border-white/20 bg-neutral-900 px-2 py-2 text-sm transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
         >
           <svg
-            height="16"
+            height="20"
             stroke-linejoin="round"
             viewBox="0 0 16 16"
-            width="16"
+            width="20"
             style="color: currentcolor;"
             ><path
               fill-rule="evenodd"
@@ -38,7 +62,7 @@ import { SITE } from "@consts";
               d="M3.5 7C3.5 5.067 5.067 3.5 7 3.5C8.933 3.5 10.5 5.067 10.5 7C10.5 7.88461 10.1718 8.69256 9.63058 9.30876L9.30876 9.63058C8.69256 10.1718 7.88461 10.5 7 10.5C5.067 10.5 3.5 8.933 3.5 7ZM9.96544 11.0261C9.13578 11.6382 8.11014 12 7 12C4.23858 12 2 9.76142 2 7C2 4.23858 4.23858 2 7 2C9.76142 2 12 4.23858 12 7C12 8.11014 11.6382 9.13578 11.0261 9.96544L14.0303 12.9697L14.5607 13.5L13.5 14.5607L12.9697 14.0303L9.96544 11.0261Z"
               fill="currentColor"></path></svg
           >
-          &nbsp;Search
+          <span class="sr-only">Search</span>
         </button>
       </nav>
     </div>
