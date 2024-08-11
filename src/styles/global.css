@@ -42,7 +42,7 @@ article {
 
 }
 
-article .nodes {
+article g.root {
   @apply leading-normal
 }
 
