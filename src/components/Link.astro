@@ -6,6 +6,7 @@ type Props = {
   external?: boolean;
   underline?: boolean;
   group?: boolean;
+  class?: string;
 };
 
 const {
@@ -13,6 +14,7 @@ const {
   external,
   underline = true,
   group = false,
+  class: _class,
   ...rest
 } = Astro.props;
 ---
@@ -24,6 +26,7 @@ const {
     "inline-block decoration-white/30 hover:decoration-white/50 focus-visible:decoration-white/50 text-current hover:text-white focus-visible:text-white transition-colors duration-300 ease-in-out",
     underline && "underline underline-offset-[3px]",
     group && "group",
+    _class,
   )}
   {...rest}
 >
