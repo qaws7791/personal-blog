@@ -1,0 +1,48 @@
+---
+import Layout from "@layouts/Layout.astro";
+import Container from "@components/Container.astro";
+import { WEBSITES } from "@consts";
+import { links } from "@pages/websites/links";
+---
+
+<Layout title={WEBSITES.TITLE} description={WEBSITES.DESCRIPTION}>
+  <Container>
+    <aside data-pagefind-ignore>
+      <div class="space-y-10">
+        <div class="not-prose flex flex-col gap-4">
+          {
+            links.map((link) => (
+              <a
+                href={link.url}
+                target="_blank"
+                class="group relative flex flex-nowrap rounded-lg border border-white/20 px-4 py-3 pr-10 transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
+              >
+                <div class="flex flex-1 flex-col truncate">
+                  <div class="font-semibold">{link.title}</div>
+                  <div class="text-sm">{link.description}</div>
+                </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  class="absolute right-2 top-1/2 size-5 -translate-y-1/2 fill-none stroke-current stroke-2"
+                >
+                  <line
+                    x1="5"
+                    y1="12"
+                    x2="19"
+                    y2="12"
+                    class="translate-x-3 scale-x-0 transition-transform duration-300 ease-in-out group-hover:translate-x-0 group-hover:scale-x-100 group-focus-visible:translate-x-0 group-focus-visible:scale-x-100"
+                  />
+                  <polyline
+                    points="12 5 19 12 12 19"
+                    class="-translate-x-1 transition-transform duration-300 ease-in-out group-hover:translate-x-0 group-focus-visible:translate-x-0"
+                  />
+                </svg>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </aside>
+  </Container>
+</Layout>
