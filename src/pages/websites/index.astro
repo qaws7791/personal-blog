@@ -9,6 +9,12 @@ import { links } from "@pages/websites/links";
   <Container>
     <aside data-pagefind-ignore>
       <div class="space-y-10">
+        <div>
+          <h1 class="animate font-semibold text-white">{WEBSITES.TITLE}</h1>
+          <p class="text-white">
+            {WEBSITES.DESCRIPTION}
+          </p>
+        </div>
         <div class="not-prose flex flex-col gap-4">
           {
             links.map((link) => (
@@ -18,8 +24,20 @@ import { links } from "@pages/websites/links";
                 class="group relative flex flex-nowrap rounded-lg border border-white/20 px-4 py-3 pr-10 transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
               >
                 <div class="flex flex-1 flex-col truncate">
+                  <span class="text-xs font-semibold uppercase text-white/50">
+                    {link.type}
+                  </span>
                   <div class="font-semibold">{link.title}</div>
                   <div class="text-sm">{link.description}</div>
+                  {link.tags && link.tags.length > 0 && (
+                    <div class="mt-2 flex flex-wrap gap-2">
+                      {link.tags.map((tag) => (
+                        <span class="rounded-full bg-white/10 px-3 py-1 text-xs">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
