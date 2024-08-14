@@ -95,7 +95,9 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
   }
 
   function addCopyCodeButtons() {
-    let copyButtonLabel = "📋";
+    const copyButtonLabel = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" 
+    style="color: currentcolor;"><path fill="currentColor" d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-520q0-17 11.5-28.5T160-720q17 0 28.5 11.5T200-680v520h400q17 0 28.5 11.5T640-120q0 17-11.5 28.5T600-80H200Zm160-240v-480 480Z"/></svg>`;
+    const copyDoneButtonLabel = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" style="color: currentcolor;" ><path fill="currentColor" d="m382-354 339-339q12-12 28-12t28 12q12 12 12 28.5T777-636L410-268q-12 12-28 12t-28-12L182-440q-12-12-11.5-28.5T183-497q12-12 28.5-12t28.5 12l142 143Z"/></svg>`;
     let codeBlocks = Array.from(document.querySelectorAll("pre"));
 
     async function copyCode(codeBlock, copyButton) {
@@ -104,10 +106,10 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
       const textToCopy = codeText.replace(buttonText, "");
 
       await navigator.clipboard.writeText(textToCopy);
-      copyButton.innerText = "✅";
+      copyButton.innerHTML = copyDoneButtonLabel;
 
       setTimeout(() => {
-        copyButton.innerText = copyButtonLabel;
+        copyButton.innerHTML = copyButtonLabel;
       }, 2000);
     }
 
@@ -116,7 +118,7 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
       wrapper.style.position = "relative";
 
       const copyButton = document.createElement("button");
-      copyButton.innerText = copyButtonLabel;
+      copyButton.innerHTML = copyButtonLabel;
       copyButton.classList = "copy-code";
 
       codeBlock.setAttribute("tabindex", "0");
