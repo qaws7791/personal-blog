@@ -13,7 +13,7 @@ export default defineConfig({
   site: "https://astro-micro.vercel.app",
   markdown: {
     shikiConfig: {
-      theme: "css-variables",
+      theme: "one-dark-pro",
     },
     remarkPlugins: [
       remarkGithubCallouts,
