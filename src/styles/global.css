@@ -22,9 +22,12 @@ body {
 }
 
 header {
-  @apply fixed left-0 right-0 top-0 z-50 py-4;
+  @apply fixed left-0 right-0 top-0 z-50 py-3;
   @apply bg-neutral-900/75;
-  @apply saturate-200 backdrop-blur-sm;
+  @apply saturate-200 backdrop-blur-sm border-b border-transparent transition-all
+}
+html.scrolled header {
+  @apply border-neutral-800
 }
 
 main {
