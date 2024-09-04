@@ -1,0 +1,1114 @@
+---
+title: "JSON Style Guide"
+description: "api에서 JSON을 사용할 때 일관성을 유지하기 위한 가이드라인"
+date: "2024-09-04"
+---
+
+## JSON
+
+
+### 정의(**Definitions)**
+
+JSON의 각 속성은 이름과 값의 쌍으로 이루어진다
+
+```json
+{
+  "속성 이름": "속성 값"
+}
+```
+
+### 주석(**Comments)**
+
+JSON 객체 안에 주석을 넣지 않습니다
+
+```json
+{
+  // 여기에 주석을 삽입하지 않습니다
+  "속성 이름": "속성 값"
+}
+```
+
+### 큰 따옴표(**Double Quotes)**
+
+속성에서 따옴표가 필요할 때는 큰 따옴표를 사용합니다. 
+
+문자열 유형에만 큰 따옴표를 사용하고, 숫자나 불리언과 같은 다른 유형에는 따옴표를 사용하지 않습니다
+
+### 평탄화된 데이터(**Flattened data)**
+
+데이터 요소는 평탄( )해야 한다.
+
+편의상 임의로 데이터를 그룹화 해서는 안된다
+
+구조적으로 데이터를 구성하는 것이 더 적합한 일부 경우에는 신중하게 검토후에 사용해야 한다
+
+```json
+{
+  "company": "Google",
+  "website": "https://www.google.com/",
+  "addressLine1": "111 8th Ave",
+  "addressLine2": "4th Floor",
+  "state": "NY",
+  "city": "New York",
+  "zip": "10011"
+}
+```
+
+구조화된 데이터
+
+```json
+{
+  "company": "Google",
+  "website": "https://www.google.com/",
+  "address": {
+    "line1": "111 8th Ave",
+    "line2": "4th Floor",
+    "state": "NY",
+    "city": "New York",
+    "zip": "10011"
+  }
+}
+```
+
+## 속성 이름 가이드라인
+
+### 속성 이름 형식
+
+의미있는 속성 이름을 사용하세요
+
+카멜 케이스(camel-case)를 사용하세요
+
+아스키(ASCII) 문자열을 사용하세요
+
+이름의 첫 문자는 `문자`, `언더스코어(_)`, `달러 사인($)` 중 하나여야 합니다
+
+자바스크립트 예약어와 동일한 속성을 피하세요
+
+특정 속성 이름은 서비스 전체에서 사용하기 위해 예약되어 있습니다. 서비스는 이러한 속성 이름을 정해진 의미 이외의 다른 용도로 사용해서는 안됩니다
+
+[https://google.github.io/styleguide/jsoncstyleguide.xml?showone=Comments#Comments](https://google.github.io/styleguide/jsoncstyleguide.xml?showone=Comments#Comments)
+
+### 배열 형식은 복수형 이름을 사용
+
+배열은 여러 개의 아이템을 가질 수 있으므로 이를 반영하여 복수형 이름을 사용합니다
+
+단 예외적으로 `totalOfItems` 과 같은 단어에서 OfItems가 제한하는 성격으로 사용하는 경우 total은 단수입니다
+
+```json
+{
+  // Singular
+  "author": "lisa",
+  // An array of siblings, plural
+  "siblings": [ "bart", "maggie"],
+  // "totalItem" doesn't sound right
+  "totalItems": 10,
+  // But maybe "itemCount" is better
+  "itemCount": 10,
+}
+```
+
+### 이름 중복
+
+이름 충돌이 있는 경우 새로운 속성 이름을 사용하거나 api 버전을 나누어 이름 충돌을 피할 수 있습니다
+
+```json
+{
+  "apiVersion": "1.0",
+  "data": {
+    "recipeName": "pizza",
+    "ingredients": ["tomatoes", "cheese", "sausage"]
+  }
+}
+```
+
+다른 이름으로 사용하기
+
+```json
+{
+  "apiVersion": "1.0",
+  "data": {
+    "recipeName": "pizza",
+    "ingredientsData": "Some new property",
+    "ingredients": ["tomatoes", "cheese", "sausage"]
+  }
+}
+```
+
+api 버전 나누기
+
+```json
+{
+  "apiVersion": "2.0",
+  "data": {
+    "recipeName": "pizza",
+    "ingredients": "Some new property",
+    "recipeIngredients": ["tomatos", "cheese", "sausage"]
+  }
+}
+```
+
+## 속성 값 가이드라인
+
+### 속성 값의 형식
+
+사용 가능한 속성 값은 Unicode booleans, numbers, strings, objects, arrays, or `null` 입니다
+
+자바스크립트 함수 표현식을 지원하지 않습니다
+
+가장 적합한 데이터 유형을 사용하세요
+
+✅
+
+```json
+{
+  "canPigsFly": null,     // null
+  "areWeThereYet": false, // boolean
+  "answerToLife": 42,     // number
+  "name": "Bart",         // string
+  "moreData": {},         // object
+  "things": []            // array
+}
+```
+
+❌
+
+```json
+{
+  "aVariableName": aVariableName,         // Bad - JavaScript identifier
+  "functionFoo": function() { return 1; } // Bad - JavaScript function
+}
+```
+
+### 비어 있거나 Null인 속성 값
+
+비어 있거나(empty) null인 값을 제거하는 것이 좋습니다
+
+속성이 선택 값이거나, 비어 있거나 null 값인 경우 꼭 존재해야 할 이유가 없다면 제거하는 것을 고려하세요
+
+### Enum 값
+
+Enum 값은 시간이 지남에 따라 추가되거나 제거되거나 변경될 수 있기 때문에 문자열을 사용하는 것이 좋습니;다
+
+Enum을 문자열로 사용하면 클라이언트가 더 쉽게 변경을 파악하고 대응할 수 있습니다
+
+```java
+public enum Color {
+  WHITE,
+  BLACK,
+  RED,
+  YELLOW,
+  BLUE
+}
+```
+
+```json
+{
+  "color": "WHITE"
+}
+```
+
+### 속성 값 데이터 유형
+
+속성 값은 위에서 말한 기본 유형을 사용해야 해지만, 특정 데이터를 처리하기 위해 표준 데이터 유형을 정의하여 사용할 수 있습니다. 
+
+이러한 데이터 유형은 문자열로 이루어지지만, 쉽게 구문 분석할 수있도록 특정 방식으로 형식이 지정되어 있습니다
+
+1. 날짜(date) 유형은 [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) 에 정의된 문자열 형식을 사용
+
+```json
+{
+  "lastUpdate": "2007-11-06T16:34:41.000Z"
+}
+```
+
+1. 기간(duration)을 나타내는 유형은 [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601#Durations)에 정의된 문자열 형식을 사용
+
+```json
+{
+  // three years, six months, four days, twelve hours,
+  // thirty minutes, and five seconds
+  "duration": "P3Y6M4DT12H30M5S"
+}
+```
+
+1. 위도(Latitude), 경도(Longitude)을 나타내는 유형은 [ISO 6709](https://en.wikipedia.org/wiki/ISO_6709)에 정의된 문자열 형식을 사용
+   또는 ±DD.DDDD±DDD.DDDD degrees 형식을 사용
+
+```json
+{
+  // The latitude/longitude location of the statue of liberty.
+  "statueOfLiberty": "+40.6894-074.0447"
+}
+```
+
+## JSON 구조와 예약어
+
+API 전체에서 일관된 인터페이스를 유지하기 위해 JSON 개체의 구조를 따라야 합니다
+
+이 구조는 요청과 응답 모두에 적용됩니다
+
+이 구조 내에는 특정 용도로 예약된 특정 속성 이름이 있습니다
+
+모든 예약 속성이 필수 속성인 것은 아닙니다
+
+data 개체와 error 개체는 동시에 존재하지는 않습니다
+
+```json
+object {
+  string apiVersion?;
+  string context?;
+  string id?;
+  string method?;
+  object {
+    string id?
+  }* params?;
+  object {
+    string kind?;
+    string fields?;
+    string etag?;
+    string id?;
+    string lang?;
+    string updated?; # date formatted RFC 3339
+    boolean deleted?;
+    integer currentItemCount?;
+    integer itemsPerPage?;
+    integer startIndex?;
+    integer totalItems?;
+    integer pageIndex?;
+    integer totalPages?;
+    string pageLinkTemplate /^https?:/ ?;
+    object {}* next?;
+    string nextLink?;
+    object {}* previous?;
+    string previousLink?;
+    object {}* self?;
+    string selfLink?;
+    object {}* edit?;
+    string editLink?;
+    array [
+      object {}*;
+    ] items?;
+  }* data?;
+  object {
+    integer code?;
+    string message?;
+    array [
+      object {
+        string domain?;
+        string reason?;
+        string message?;
+        string location?;
+        string locationType?;
+        string extendedHelp?;
+        string sendReport?;
+      }*;
+    ] errors?;
+  }* error?;
+}*;
+```
+
+## 최상위 예약 속성 이름
+
+### **apiVersion**
+
+- 유형: 문자열
+- 필수 속성: ✅
+
+요청 시 원하는 API 버전 또는 응답 시 제공되는 API 버전을 나타냅니다
+
+```json
+{ "apiVersion": "2.1" }
+```
+
+### context
+
+- 유형: 문자열
+- 필수 속성: ❌
+
+클라이언트가 이 값을 설정하고, 서버는 응답에 이 데이터를 포함합니다
+
+컨텍스트를 사용하여 요청과 응답을 연관 시키는 **JSON-P,** **batch 상황**에 ****유용합니다
+
+응답의 성공 여부와 상관없이 표시되어야 하는 최상위 속성입니다
+
+1. 요청 예시
+
+   ```
+   https://www.google.com/myapi?context=bart
+   ```
+
+2. 응답 예시
+
+   ```json
+   {
+     "context": "bart",
+     "data": {
+       "items": []
+     }
+   }
+   ```
+
+### id
+
+- 유형: 문자열
+- 필수 속성: ✅
+
+응답의 성공 여부와 상관없이 서버에서 제공하는 응답에 대한 식별자입니다
+
+클라이언트 측의 응답과 서버 로그를 연관시키는 데 유용합니다
+
+```json
+{ "id": "1" }
+```
+
+### method
+
+- 유형: 문자열
+- 필수 속성: ✅
+
+데이터에 대해 수행할 작업 또는 수행할 작업을 표현합니다
+
+JSON 요청에서는 데이터에 대해 수행할 작업을 알려줄 수 있다
+
+JSON 응답에서는 데이터에 대해 수행한 작업을 알려줄 수 있다
+
+1. JSON-RPC 요청 예시
+
+   ```json
+   {
+     "method": "people.get",
+     "params": {
+       "userId": "@me",
+       "groupId": "@self"
+     }
+   }
+   ```
+
+### params
+
+- 유형: 객체
+- 필수 속성: ❌
+
+RPC 요청로 보낼 입력 매개변수의 맵(map) 역할을 합니다
+
+RPC 함수에 매개변수가 필요하지 않는 경우 이 속성을 생략할 수 있습니다
+
+```json
+{
+  "method": "people.get",
+  "params": {
+    "userId": "@me",
+    "groupId": "@self"
+  }
+}
+```
+
+### data
+
+- 유형: 객체
+
+응답의 모든 데이터에 대한 컨테이너입니다
+
+이 속성에는 예약된 속성 이름이 많이 있습니다
+
+서비스는 이 객체에 자유롭게 자신의 데이터를 추가할 수 있습니다
+
+> [!WARNING] JSON 응답은 data 객체 또는 error 객체를 포함해야 하지만 둘 다 포함해서는 안됩니다. 만약 둘 다 존재하는 경우 error 객체가 우선시됩니다
+
+```json
+{
+  "apiVersion": "2.0",
+  "error": {
+    "code": 404,
+    "message": "File Not Found",
+    "errors": [{
+      "domain": "Calendar",
+      "reason": "ResourceNotFoundException",
+      "message": "File Not Found
+    }]
+  }
+}
+```
+
+### error
+
+- 유형: 객체
+
+오류가 발생했을 때 세부 사항을 알려주는 역할을 합니다
+
+오류 형식은 서비스에서 반환된 하나 이상의 에러를 지원합니다
+
+```json
+{
+  "apiVersion": "2.0",
+  "error": {
+    "code": 404,
+    "message": "File Not Found",
+    "errors": [{
+      "domain": "Calendar",
+      "reason": "ResourceNotFoundException",
+      "message": "File Not Found
+    }]
+  }
+}
+```
+
+## data 객체의 예약된 속성 이름
+
+### data.kind
+
+- 유형: 문자열
+
+kind 속성은 data가 어떤 유형의 정보를 저장하고 있는지 알려주는 역할을 합니다
+
+data 수준, items 수준, 다른 다양한 유형의 객체를 구별하는데 도움이 되는 모든 객체에 존재할 수 있습니다
+
+> [!WARNING]
+> 속성 순서: 이 속성이 존재하는 경우 객체의 첫 번째 속성이어야 합니다
+
+```json
+// "Kind" indicates an "album" in the Picasa API.
+{"data": {"kind": "album"}}
+```
+
+### **data.fields**
+
+- 유형: 문자열
+
+부분 GET 요청에서 응답에 대한 필드를 설명하거나 부분 PATCH 요청에서 요청에 있는 필드를 나타냅니다
+
+이 요청은 부분 GET/PATCH 에서만 사용할 수 있으며, 비어있으면 안됩니다
+
+```json
+{
+  "data": {
+    "kind": "user",
+    "fields": "author,id",
+    "id": "bart",
+    "author": "Bart"
+  }
+}
+```
+
+### data.etag
+
+- 유형: 문자열
+
+캐싱을 위해 사용하며 응답에 대한 etag를 표현합니다
+
+```json
+{"data": {"etag": "W/"C0QBRXcycSp7ImA9WxRVFUk.""}}
+```
+
+### data.id
+
+- 유형: 문자열
+
+객체를 참조하기 위해 사용하는 전역적으로 고유한 문자열입니다
+
+id 속성에 대한 세부 사항은 서비스에 따라 달라질 수 있습니다
+
+```json
+{"data": {"id": "12345"}}
+```
+
+### data.lang
+
+- 유형: 문자열([BCP 47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) 에 의한 언어 유형)
+
+이 객체에서 나머지 속성들에 대한 언어를 나타냅니다
+
+이 속성은 HTML의 lang 속성이나 XML의 xml:lang 속성과 유사합니다
+
+값은 BCP 47에 정의된 값 중 하나입니다
+
+> [!WARNING]
+> 만약 하나의 JSON 객체 내에 여러 언어가 사용되는 경우 서비스는 lang 속성에 대한 적절한 위치를 개발하고 문서화 해야 합니다
+
+
+
+```json
+{"data": {
+  "items": [
+    { "lang": "en",
+      "title": "Hello world!" },
+    { "lang": "fr",
+      "title": "Bonjour monde!" }
+  ]}
+}
+```
+
+### data.updated
+
+- 유형: 문자열([RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) 에 의한 날짜 유형)
+
+서비스에서 정의한 대로 항목이 마지막으로 업데이트된 날짜와 시간을 RFC 3339에서 정의한 형식으로 나타냅니다
+
+```json
+{"data": {"updated": "2007-11-06T16:34:41.000Z"}}
+```
+
+### **data.deleted**
+
+- 유형: 불리언
+
+포함된 항목이 삭제되었는지 여부를 알려주는 역할을 합니다
+
+삭제된 경우 true이며, false 값은 혼란을 야기할 수 있기 때문에 피해야 합니다
+
+따라서 deleted 속성은 정의되지 않거나 정의된 경우 항상 true입니다
+
+```json
+{"data": {
+  "items": [
+    { "title": "A deleted entry",
+      "deleted": true
+    }
+  ]}
+}
+```
+
+### data.items
+
+- 유형: array
+
+항목들의 배열을 나타내기 위해 예약되었습니다
+
+이 구성은 현재 결과와 관련된 컬렉션의 표준 위치를 제공합니다
+
+예를 들어 JSON 출력은 item 배열에 대한 페이지네이션 시스템에 연결될 수 있습니다
+
+> [!WARNING]
+> 만약 items 속성이 존재하는 경우, 이 속성은 data 객체의 마지막 속성이어야 합니다
+
+```json
+{
+  "data": {
+    "items": [
+      { /* Object #1 */ },
+      { /* Object #2 */ },
+      ...
+    ]
+  }
+}
+```
+
+## 페이징을 위해 예약된 속성 이름들
+
+- 이전 / 다음 페이징 - 사용자가 한 번에 한 페이지씩 앞이나 뒤로 이동할 수 있는 방식
+  - `nextLink` 와 `previousLink` 속성이 사용됩니다.
+- 인덱스 기반 페이징 - 사용자가 항목의 목록에서 특정 항목 위치로 이동할 수 있는 방식
+  - 인덱스가 200인 항목부터 10개의 항목을 가져오기 위해 `?startIndex=200` 쿼리 스트링 사용
+- 페이지 기반 페이징 - 사용자가 항목 내의 특정 페이지로 이동할 수 있는 방식
+  - 한 페이지에 10개의 항목이 표시될 때 201번째 항목을 보기 위해 `?page=20` 쿼리 스트링 사용
+  - `pageIndex` 와 `totalPages` 속성이 사용됩니다.
+
+### **data.currentItemCount**
+
+- 유형: 정수
+
+이 결과 집합의 항목 수를 나타냅니다
+
+이 값은 `items.length` 와 동일하며 편의 속성으로 제공됩니다
+
+예시 - 전체 아이템이 14개이고 1페이지 당 10개의 항목을 표시하는 상황
+
+- 1페이지
+
+  ```json
+  {
+    "data": {
+      "itemsPerPage": 10,
+      "currentItemCount": 10
+    }
+  }
+  ```
+
+- 2페이지
+
+  ```json
+  {
+    "data": {
+      "itemsPerPage": 10,
+      "currentItemCount": 4
+    }
+  }
+  ```
+
+### data.itemsPerPage
+
+- 유형: 정수
+
+결과의 항목 수를 나타냅니다
+
+항상 data.items의 길이와 같은 것은 아닙니다
+
+만약 항목의 마지막 페이지를 보고 있는 경우, data.items의 길이는 itemsPerPage보다 작을 수 있습니다
+
+```json
+{
+  "data": {
+    "itemsPerPage": 10
+  }
+}
+```
+
+### **data.startIndex**
+
+- 유형: 정수
+
+data.items의 첫 번째 항목의 인덱스입니다
+
+예를 들어 첫 번째 항목 집합의 첫번째 항목의 startIndex는 1입니다
+
+```json
+{
+  "data": {
+    "startIndex": 1
+  }
+}
+```
+
+### **data.totalItems**
+
+- 유형: 정수
+
+이 집합에서 사용할 수 있는 총 항목 수입니다
+
+만약 사용자가 100개의 게시글을 가지고 있을 경우, 한 페이지에 10개 씩 보여지더라도 totalItems는 100입니다
+
+```json
+{
+  "data": {
+    "totalItems": 100
+  }
+}
+```
+
+### **data.pagingLinkTemplate**
+
+- 유형: 문자열
+
+사용자가 후속 페이징 링크들을 계산하기 위해 제공하는 URI 템플릿입니다
+
+URI 템플릿에는 로드할 항목 번호를 나타내는 `{index}` 와 로드할 페이지 번호를 나타내는 `{pageIndex}` 라는 예약된 변수 이름이 있습니다
+
+```json
+{
+  "data": {
+    "pagingLinkTemplate": "https://www.google.com/search/hl=en&q=chicago+style+pizza&start={index}&sa=N"
+  }
+}
+```
+
+### data.pageIndex
+
+- 유형: 정수
+
+현재 항목 페이지의 인덱스입니다
+
+계산 식: pageIndex = floor(startIndex / itemsPerPage) + 
+
+> [!WARNING]
+> 일관성을 위해 pageIndex는 1부터 시작해야 합니다
+
+```json
+{
+  "data": {
+    "pageIndex": 1
+  }
+}
+```
+
+### **data.totalPages**
+
+- 유형: 정수
+
+결과 집합의 총 페이지 수입니다
+
+계산 식: totalPages = ceiling(totalItems / itemsPerPage)
+
+```json
+{
+  "data": {
+    "totalPages": 50
+  }
+}
+```
+
+## 링크를 위해 예약된 속성 이름
+
+data 객체 내에 위치하며, 다른 리소스에 대한 참조를 나타냅니다
+
+1. 모든 종류의 참조를 포함할 수 있는 객체
+2. 리소스에 대한 URI를 나타내는 문자열(”link”라는 접미사를 사용)
+
+### **data.self / data.selfLink**
+
+- 유형: 객체 / 문자열
+
+selfLink를 사용하여 항목의 데이터를 검색할 수 있습니다
+
+```json
+{
+  "data": {
+    "self": { },
+    "selfLink": "https://www.google.com/feeds/album/1234"
+  }
+}
+```
+
+### **data.edit / data.editLink**
+
+- 유형: 객체 / 문자열
+
+사용자가 업데이트 또는 삭제를 보낼 수 있는 위치는 나타냅니다
+
+REST기반 api에서 유용합니다
+
+> [!WARNING]
+> 사용자가 업데이트 또는 삭제를 할 수 있는 경우에만 존재
+
+```json
+{
+  "data": {
+    "edit": { },
+    "editLink": "https://www.google.com/feeds/album/1234/edit"
+  }
+}
+```
+
+### **data.next / data.nextLink**
+
+- 유형: 객체 / 문자열
+
+이 링크는 더 많은 데이터를 검색할 수 있는 방법을 나타냅니다
+
+다음 데이터를 로드할 위치를 가리킵니다
+
+ `itemsPerPage`, `startIndex` 그리고 `totalItems` 속성을 함께 사용할 수 있습니다
+
+```json
+{
+  "data": {
+    "next": { },
+    "nextLink": "https://www.google.com/feeds/album/1234/next"
+  }
+}
+```
+
+### data.previous / data.previousLink
+
+- 유형: 객체 / 문자열
+
+이 링크는 더 많은 데이터를 검색할 수 있는 방법을 나타냅니다
+
+다음 데이터를 로드할 위치를 가리킵니다
+
+ `itemsPerPage`, `startIndex` 그리고 `totalItems` 속성을 함께 사용할 수 있습니다
+
+```json
+{
+  "data": {
+    "previous": { },
+    "previousLink": "https://www.google.com/feeds/album/1234/next"
+  }
+}
+```
+
+## error 객체에서 예약된 속성 이름
+
+### error.code
+
+- 유형: 정수
+
+오류에 대한 코드를 나타냅니다
+
+일반적으로 HTTP 응답 코드를 나타냅니다
+
+```json
+{
+  "error":{
+    "code": 404
+  }
+}
+```
+
+### error.message
+
+- 유형: 문자열
+
+사람이 읽을 수 있는 형태로 오류에 대한 자세한 정보를 제공합니다
+
+오류가 여러 개일 때는 첫 번째 오류의 메시지가 됩니다
+
+```json
+{
+  "error":{
+    "message": "File Not Found"
+  }
+}
+```
+
+### error.errors
+
+- 유형: 배열
+
+오류에 관한 추가 정보를 담는 컨테이너입니다
+
+```json
+{ "error": { "errors": [] } }
+```
+
+### error.errors[].domain
+
+- 유형: 문자열
+
+오류를 발생시키는 서비스의 고유 식별자입니다
+
+이는 서비스 별 오류와 일반 프로토콜 오류를 구분하는 데 도움이 됩니다
+
+```json
+{
+  "error":{
+    "errors": [{"domain": "Calendar"}]
+  }
+}
+```
+
+### error.errors[].reason
+
+- 유형: 문자열
+
+오류에 대한 식별자입니다
+
+http 응답 코드가 아니기 때문에 `error.code`와 다릅니다
+
+```json
+{
+  "error":{
+    "errors": [{"reason": "ResourceNotFoundException"}]
+  }
+}
+```
+
+### error.errors[].message
+
+- 유형: 문자열
+
+사람이 읽을 수 있는 형태로 오류에 대한 자세한 정보를 제공합니다
+
+이 속성은 오류가 하나인 경우 `error.message`와 일치합니다
+
+```json
+{
+  "error":{
+    "code": 404
+    "message": "File Not Found",
+    "errors": [{"message": "File Not Found"}]
+  }
+}
+```
+
+### error.errors[].location
+
+- 유형: 문자열
+
+오류의 위치를 나타냅니다
+
+해당 값의 해석은 locationType에 따라 달라집니다
+
+```json
+{
+  "error":{
+    "errors": [{"location": ""}]
+  }
+}
+```
+
+### **error.errors[].locationType**
+
+- 유형: 문자열
+
+location 속성을 해석하는 방법을 나타냅니다
+
+```json
+{
+  "error":{
+    "errors": [{"locationType": ""}]
+  }
+}
+```
+
+### error.errors[].extendedHelp
+
+- 유형: 문자열
+
+오류에 대해 더 많은 정보를 제공할 수 있는 도움말 텍스트의 URI입니다
+
+```json
+{
+  "error":{
+    "errors": [{"extendedHelper": "http://url.to.more.details.example.com/"}]
+  }
+}
+```
+
+### **error.errors[].sendReport**
+
+- 유형: 문자열
+
+오류 조건에 대한 데이터를 수집하기 위해 서비스에서 사용하는 보고서 양식의 URI입니다
+
+이 URI에는 요청을 설명하는 매개변수가 미리 로드되어야 합니다
+
+```json
+{
+  "error":{
+    "errors": [{"sendReport": "https://report.example.com/"}]
+  }
+}
+```
+
+## 속성 순서
+
+JSON 객체 안에서 속성은 어떤 순서로든 있을 수 있습니다
+
+하지만 일부 경우에서는 속성 순서를 지정하면 파서가 더 빠르게 데이터를 읽을 수 있습니다
+
+### kind 속성
+
+kind 속성은 첫 번째 속성이어야 합니다
+
+kind 속성은 파서가 적절한 개체를 인스턴스화하도록 안내합니다
+
+이는 객체에 kind 속성이 존재할 경우에만 적용됩니다
+
+### items 속성
+
+items 속성은 data 객체 내에서 마지막 속성이어야 합니다
+
+이렇게 하면 각 개별 항목을 읽기 전에 컬렉션의 모든 속성을 읽을 수 있습니다
+
+data 객체에서 특정 속성만 필요할 때 items 속성에 대한 불필요한 분석을 피할 수 있습니다
+
+```json
+// The "kind" property distinguishes between an "album" and a "photo".
+// "Kind" is always the first property in its parent object.
+// The "items" property is the last property in the "data" object.
+{
+  "data": {
+    "kind": "album",
+    "title": "My Photo Album",
+    "description": "An album in the user's account",
+    "items": [
+      {
+        "kind": "photo",
+        "title": "My First Photo"
+      }
+    ]
+  }
+}
+```
+
+## 예시
+
+YouTube api 예시
+
+```json
+{
+  "apiVersion": "2.0",
+  "data": {
+    "updated": "2010-02-04T19:29:54.001Z",
+    "totalItems": 6741,
+    "startIndex": 1,
+    "itemsPerPage": 1,
+    "items": [
+      {
+        "id": "BGODurRfVv4",
+        "uploaded": "2009-11-17T20:10:06.000Z",
+        "updated": "2010-02-04T06:25:57.000Z",
+        "uploader": "docchat",
+        "category": "Animals",
+        "title": "From service dog to SURFice dog",
+        "description": "Surf dog Ricochets inspirational video ...",
+        "tags": [
+          "Surf dog",
+          "dog surfing",
+          "dog",
+          "golden retriever",
+        ],
+        "thumbnail": {
+          "default": "https://i.ytimg.com/vi/BGODurRfVv4/default.jpg",
+          "hqDefault": "https://i.ytimg.com/vi/BGODurRfVv4/hqdefault.jpg"
+        },
+        "player": {
+          "default": "https://www.youtube.com/watch?v=BGODurRfVv4&feature=youtube_gdata",
+          "mobile": "https://m.youtube.com/details?v=BGODurRfVv4"
+        },
+        "content": {
+          "1": "rtsp://v5.cache6.c.youtube.com/CiILENy73wIaGQn-Vl-0uoNjBBMYDSANFEgGUgZ2aWRlb3MM/0/0/0/video.3gp",
+          "5": "https://www.youtube.com/v/BGODurRfVv4?f=videos&app=youtube_gdata",
+          "6": "rtsp://v7.cache7.c.youtube.com/CiILENy73wIaGQn-Vl-0uoNjBBMYESARFEgGUgZ2aWRlb3MM/0/0/0/video.3gp"
+        },
+        "duration": 315,
+        "rating": 4.96,
+        "ratingCount": 2043,
+        "viewCount": 1781691,
+        "favoriteCount": 3363,
+        "commentCount": 1007,
+        "commentsAllowed": true
+      }
+    ]
+  }
+}
+```
+
+페이징 api 예시
+
+```json
+{
+  "apiVersion": "2.1",
+  "id": "1",
+  "data": {
+    "query": "chicago style pizza",
+    "time": "0.1",
+    "currentItemCount": 10,
+    "itemsPerPage": 10,
+    "startIndex": 11,
+    "totalItems": 2700000,
+    "nextLink": "https://www.google.com/search?hl=en&q=chicago+style+pizza&start=20&sa=N"
+    "previousLink": "https://www.google.com/search?hl=en&q=chicago+style+pizza&start=0&sa=N",
+    "pagingLinkTemplate": "https://www.google.com/search/hl=en&q=chicago+style+pizza&start={index}&sa=N",
+    "items": [
+      {
+        "title": "Pizz'a Chicago Home Page"
+        // More fields for the search results
+      }
+      // More search results
+    ]
+  }
+}
+```
+
+## 자바스크립트에서 예약어
+
+```
+abstract
+boolean break byte
+case catch char class const continue
+debugger default delete do double
+else enum export extends
+false final finally float for function
+goto
+if implements import in instanceof int interface
+let long
+native new null
+package private protected public
+return
+short static super switch synchronized
+this throw throws transient true try typeof
+var volatile void
+while with
+yield
+```
