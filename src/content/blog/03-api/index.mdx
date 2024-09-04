@@ -563,6 +563,22 @@ X-API-Version: 1.0
 
 
 
+
+
+## 일반적인 응답 구조
+
+```json
+{
+    "statusCode": "...",
+    "message": "...",
+    "data": [...],
+    "meta": {...},
+    "error": {...}
+}
+```
+
+
+
 ## Pagination
 
 데이터 목록을 보여줄 때는 모든 데이터를 한 번에 주지 않도록 페이지네이션을 사용해야 한다
@@ -619,11 +635,11 @@ X-API-Version: 1.0
 
 ```json
 "pagination": {
-   "total_records": 20,
-   "current_page": 1,
-   "total_pages": 2,
-   "next_page": 2,
-   "prev_page": null
+   "totalItems": 20,
+   "currentPage": 1,
+   "totalPages": 2,
+   "nextPage": 2,
+   "prevPage": null
  }
 ```
 
@@ -665,11 +681,11 @@ page를 offset으로 변환하는 단계만 추가된 것으로 offset 방식과
 	"data": [...],
 	"pagination": {
 		"currentPage": 1,
-		"previousPage": null,
+		"prevPage": null,
 		"nextPage": 2,
 		"hasNextPage": true,
 		"hasPrevPage": false,
-         "totalPage": 57,
+         "totalPages": 57,
          "pageSize": 10,
 		"totalItems": 566
 	}
@@ -776,16 +792,22 @@ ID와 같은 레코드의  고유 식별자를 커서로 활용하여 페이지�
 
 ## Filtering 
 
-- 리소스 필터링: `?filter=color:red` 빨간 색 속성을 가지는 리소스만 필터링
+- querystring은 기본적으로 필터링에 사용된다
 
-`?fields=name,price` name,price 필드만 반환하도록 필드 제한
+- 리소스 필터링: `?filter=color:red` 빨간 색 속성을 가지는 리소스만 필터링
 
 ```
 https://api.example.com/clothes?filter=color:red
 ```
 
 ```
-https://api.example.com/clothes?filter=min_price:10000
+https://api.example.com/clothes?min_price=10000
+```
+
+- 필드 필터링: `?fields=id,name`: id,name 필드만 필터링하여 가져옴
+
+```
+https://api.example.com/clothes?fields=id,name
 ```
 
 
@@ -796,6 +818,12 @@ https://api.example.com/clothes?filter=min_price:10000
 
 ```
 https://api.example.com/clothes?sort_by=price&order_by=asc
+```
+
+`[sort]:[order]` sort를 key로, order를 value로 사용한 키 값쌍으로 정렬
+
+```
+https://api.example.com/clothes?sort=price:asc
 ```
 
 
@@ -825,6 +853,20 @@ https://api.example.com/clothes?query=shirt
 - order_by -> asc
 
 - fields -> 모든 필드
+
+
+
+## Error 
+
+```json
+{
+	"error": {
+		"status": 401,
+         "errorCode": "ERROR401-01"
+		"message": "Unauthorized"
+	}
+}
+```
 
 
 
