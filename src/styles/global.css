@@ -109,3 +109,18 @@ pre {
 .copy-code:active {
   @apply scale-90 transition-transform;
 }
+
+.tab-content.active {
+  @apply flex;
+}
+
+
+.tab {
+  @apply cursor-pointer rounded-full p-2 px-4;
+}
+.tab-content {
+  @apply hidden;
+}
+.tab.active {
+  @apply bg-neutral-800 text-white;
+}
