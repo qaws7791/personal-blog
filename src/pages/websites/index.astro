@@ -3,6 +3,7 @@ import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
 import { WEBSITES } from "@consts";
 import { links } from "@pages/websites/links";
+import { cn } from "@lib/utils";
 ---
 
 <Layout title={WEBSITES.TITLE} description={WEBSITES.DESCRIPTION}>
@@ -15,29 +16,39 @@ import { links } from "@pages/websites/links";
             {WEBSITES.DESCRIPTION}
           </p>
         </div>
-        <div class="not-prose flex flex-col gap-4">
-          {
-            links.map((link) => (
+      </div>
+      <div class="tabs mt-4 inline-flex rounded-full bg-neutral-600">
+        <button class="tab active" data-tab="korean">국내(korean)</button>
+        <button class="tab" data-tab="foreign">해외(foreign)</button>
+      </div>
+
+      <div
+        class="tab-content not-prose active mt-4 flex flex-col gap-4"
+        data-tab="korean"
+      >
+        {
+          links
+            .filter((link) => link.lang === "korean")
+            .map((link) => (
               <a
                 href={link.url}
                 target="_blank"
+                rel="noopener noreferrer"
                 class="group relative flex flex-nowrap rounded-lg border border-white/20 px-4 py-3 pr-10 transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
               >
                 <div class="flex flex-1 flex-col truncate">
                   <span class="text-xs font-semibold uppercase text-white/50">
                     {link.type}
                   </span>
-                  <div class="font-semibold">{link.title}</div>
+                  <div class="mt-2 flex">
+                    <img
+                      src={`https://www.google.com/s2/favicons?sz=32&domain_url=${link.url}`}
+                      alt=""
+                      class="mr-2 inline-block h-6 w-6 rounded-full"
+                    />
+                    <h2 class="font-semibold leading-tight">{link.title}</h2>
+                  </div>
                   <div class="text-sm">{link.description}</div>
-                  {link.tags && link.tags.length > 0 && (
-                    <div class="mt-2 flex flex-wrap gap-2">
-                      {link.tags.map((tag) => (
-                        <span class="rounded-full bg-white/10 px-3 py-1 text-xs">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -58,9 +69,78 @@ import { links } from "@pages/websites/links";
                 </svg>
               </a>
             ))
-          }
-        </div>
+        }
+      </div>
+      <div
+        class="tab-content not-prose mt-8 flex flex-col gap-4"
+        data-tab="foreign"
+      >
+        {
+          links
+            .filter((link) => link.lang !== "korean")
+            .map((link) => (
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group relative flex flex-nowrap rounded-lg border border-white/20 px-4 py-3 pr-10 transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
+              >
+                <div class="flex flex-1 flex-col truncate">
+                  <span class="text-xs font-semibold uppercase text-white/50">
+                    {link.type}
+                  </span>
+                  <div class="mt-2 flex">
+                    <img
+                      src={`https://www.google.com/s2/favicons?sz=32&domain_url=${link.url}`}
+                      alt=""
+                      class="mr-2 inline-block h-6 w-6 rounded-full"
+                    />
+                    <h2 class="font-semibold leading-tight">{link.title}</h2>
+                  </div>
+                  <div class="text-sm">{link.description}</div>
+                </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  class="absolute right-2 top-1/2 size-5 -translate-y-1/2 fill-none stroke-current stroke-2"
+                >
+                  <line
+                    x1="5"
+                    y1="12"
+                    x2="19"
+                    y2="12"
+                    class="translate-x-3 scale-x-0 transition-transform duration-300 ease-in-out group-hover:translate-x-0 group-hover:scale-x-100 group-focus-visible:translate-x-0 group-focus-visible:scale-x-100"
+                  />
+                  <polyline
+                    points="12 5 19 12 12 19"
+                    class="-translate-x-1 transition-transform duration-300 ease-in-out group-hover:translate-x-0 group-focus-visible:translate-x-0"
+                  />
+                </svg>
+              </a>
+            ))
+        }
       </div>
     </aside>
   </Container>
 </Layout>
+<script is:inline>
+  const tabs = document.querySelectorAll(".tab");
+  const tabContents = document.querySelectorAll(".tab-content");
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      console.log("Clieck", tab);
+      const target = tab.dataset.tab;
+      tabs.forEach((tab) => tab.classList.remove("active"));
+      tab.classList.add("active");
+
+      tabContents.forEach((tabContent) => {
+        if (tabContent.dataset.tab === target) {
+          tabContent.classList.add("active");
+        } else {
+          tabContent.classList.remove("active");
+        }
+      });
+    });
+  });
+</script>
