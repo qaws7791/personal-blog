@@ -1,9 +1,9 @@
 export type Link = {
-  type: "website" | "video" | "article" | "book" | "course" | "other";
+  type: "website" | "video" | "article" | "book" | "course" | "other" | "blog";
+  lang: "korean" | "english" | "other";
   title: string;
   description: string;
   url: string;
-  tags?: string[];
 };
 
 export const links: Link[] = [
@@ -12,49 +12,49 @@ export const links: Link[] = [
     title: "FreeCodeCamp",
     description: "Learn to code for free",
     url: "https://www.freecodecamp.org",
-    tags: ["web development", "javascript", "react", "node.js", "mongodb"],
+    lang: "english",
   },
   {
     type: "website",
     title: "Codecademy",
     description: "Learn to code interactively, for free",
     url: "https://www.codecademy.com",
-    tags: ["web development", "javascript", "react", "node.js", "mongodb"],
+    lang: "english",
   },
   {
     type: "website",
     title: "Coursera",
     description: "Online courses from top universities",
     url: "https://www.coursera.org",
-    tags: ["web development", "javascript", "react", "node.js", "mongodb"],
+    lang: "english",
   },
   {
     type: "website",
     title: "Udemy",
-    description: "Online courses",
+    description: "250,000+ online courses",
     url: "https://www.udemy.com",
-    tags: ["web development", "javascript", "react", "node.js", "mongodb"],
+    lang: "english",
   },
   {
     type: "website",
     title: "edX",
     description: "Online courses from top universities",
     url: "https://www.edx.org",
-    tags: ["web development", "javascript", "react", "node.js", "mongodb"],
+    lang: "english",
   },
   {
     type: "website",
     title: "Khan Academy",
     description: "Learn almost anything for free",
     url: "https://www.khanacademy.org",
-    tags: ["web development", "javascript", "react", "node.js", "mongodb"],
+    lang: "english",
   },
   {
     type: "website",
     title: "MIT OpenCourseWare",
     description: "Free lecture notes, exams, and videos from MIT",
     url: "https://ocw.mit.edu/index.htm",
-    tags: ["web development", "javascript", "react", "node.js", "mongodb"],
+    lang: "english",
   },
   {
     type: "website",
@@ -62,7 +62,7 @@ export const links: Link[] = [
     description:
       "Stanford Online offers free online courses taught by Stanford faculty to lifelong learners worldwide",
     url: "https://online.stanford.edu",
-    tags: ["web development", "javascript", "react", "node.js", "mongodb"],
+    lang: "english",
   },
   {
     type: "website",
@@ -70,6 +70,259 @@ export const links: Link[] = [
     description:
       "Code.org is a non-profit dedicated to expanding access to computer science and increasing participation",
     url: "https://code.org",
-    tags: ["web development", "javascript", "react", "node.js", "mongodb"],
+    lang: "english",
+  },
+  {
+    type: "website",
+    title: "pluralsight",
+    description: "The technology skills platform",
+    url: "https://www.pluralsight.com",
+    lang: "english",
+  },
+  {
+    type: "website",
+    title: "Frontend Masters",
+    description: "200+ In-Depth Frontend & Fullstack Courses",
+    url: "https://frontendmasters.com",
+    lang: "english",
+  },
+  {
+    type: "website",
+    title: "Epic Web",
+    description: "The most comprehensive guide to building React applications",
+    url: "https://www.epicweb.dev",
+    lang: "english",
+  },
+  {
+    type: "website",
+    title: "Developers Roadmaps",
+    description: "Roadmaps for developers",
+    url: "https://roadmap.sh",
+    lang: "english",
+  },
+  {
+    type: "website",
+    title: "인프런(Inflearn)",
+    description: "온라인 강의 플랫폼",
+    url: "https://www.inflearn.com",
+    lang: "korean",
+  },
+  {
+    type: "website",
+    lang: "korean",
+    title: "생활코딩(Opentutorials)",
+    description:
+      "일반인들에게 프로그래밍을 알려주는 무료 온라인, 오프라인 수업",
+    url: "https://opentutorials.org",
+  },
+  {
+    type: "website",
+    lang: "korean",
+    title: "구름EDU",
+    description: "모두를 위한 맞춤형 IT교육 플랫폼",
+    url: "https://edu.goorm.io",
+  },
+  {
+    type: "website",
+    lang: "korean",
+    title: "코드잇(Codeit)",
+    description: "하루 10분으로 코딩 습관 형성 ",
+    url: "https://www.codeit.kr",
+  },
+  {
+    type: "website",
+    lang: "korean",
+    title: "패스트캠퍼스(FastCampus)",
+    description: "프로그래밍, 마케팅, 디자인, 데이터 등 온라인 강의",
+    url: "https://www.fastcampus.co.kr",
+  },
+  {
+    url: "https://school.programmers.co.kr",
+    type: "website",
+    title: "프로그래머스",
+    description: "IT 분야 교육 전반의 과정을 제공하는 온라인 교육 플랫폼",
+    lang: "korean",
+  },
+  {
+    url: "https://www.boostcourse.org",
+    type: "website",
+    title: "부스트코스(Boostcourse)",
+    description: "네이버와 함께하는 온라인 프로그래밍 교육",
+    lang: "korean",
+  },
+  {
+    url: "https://likelion.net",
+    type: "website",
+    title: "멋쟁이사자처럼(Likelion)",
+    description: "IT분야의 TECH 인재를 키우는 교육 커뮤니티",
+    lang: "korean",
+  },
+  {
+    url: "https://f-lab.kr",
+    type: "website",
+    title: "F-Lab",
+    description: "개발자 멘토링 서비스",
+    lang: "korean",
+  },
+  {
+    url: "https://class101.net",
+    type: "website",
+    title: "클래스101(Class101)",
+    description: "온라인 클래스 플랫폼",
+    lang: "korean",
+  },
+  {
+    url: "https://www.ebssw.kr",
+    type: "website",
+    title: "EBS 소프트웨어·인공지능 교육",
+    description: "EBS에서 제공하는 소프트웨어·인공지능 교육",
+    lang: "korean",
+  },
+  {
+    url: "https://poiemaweb.com",
+    type: "website",
+    title: "Poiemaweb",
+    description: "웹 프로그래밍 학습을 위한 자료",
+    lang: "korean",
+  },
+  {
+    url: "https://developer.mozilla.org",
+    type: "website",
+    title: "MDN Web Docs",
+    description: "Documentation on web technologies",
+    lang: "english",
+  },
+  {
+    url: "https://www.w3schools.com",
+    type: "website",
+    title: "W3Schools",
+    description: "Web development tutorials",
+    lang: "english",
+  },
+  {
+    url: "https://codepen.io",
+    type: "website",
+    title: "CodePen",
+    description: "The best place to build, test, and discover front-end code.",
+    lang: "english",
+  },
+  {
+    url: "https://www.kocw.net",
+    type: "website",
+    title: "대학공개강의(KOCW)",
+    description: "온라인 대학공개강의 사이트",
+    lang: "korean",
+  },
+  {
+    url: "https://www.kmooc.kr",
+    type: "website",
+    title: "한국형 모두의 온라인 강좌(KMOOC)",
+    description:
+      "한국형 MOOC로서 대학의 강좌를 언제나, 어디서나, 누구나, 무료로 수강할 수 있는 서비스",
+    lang: "korean",
+  },
+  {
+    url: "https://www.udacity.com",
+    type: "website",
+    title: "Udacity",
+    description:
+      "Learn online and advance your career with courses in programming, data science, artificial intelligence, digital marketing, and more",
+    lang: "english",
+  },
+  {
+    url: "https://www.frontendmentor.io",
+    type: "website",
+    title: "Frontend Mentor",
+    description:
+      "Improve your front-end coding skills by building real projects",
+    lang: "english",
+  },
+  {
+    url: "https://dev.to",
+    type: "website",
+    title: "DEV Community",
+    description:
+      "Where software developers stay in the loop and avoid career stagnation",
+    lang: "english",
+  },
+  {
+    url: "https://www.itworld.co.kr",
+    type: "website",
+    title: "ITWorld Korea",
+    description: "IT 전문가를 위한 IT 전문 미디어",
+    lang: "korean",
+  },
+  {
+    url: "https://boannews.com",
+    type: "website",
+    title: "보안뉴스",
+    description: "보안 전문 미디어",
+    lang: "korean",
+  },
+  {
+    url: "https://www.patterns.dev",
+    type: "website",
+    title: "Patterns",
+    description: "A collection of design patterns",
+    lang: "english",
+  },
+  {
+    url: "https://www.w3.org",
+    type: "website",
+    title: "W3C",
+    description: "The World Wide Web Consortium",
+    lang: "english",
+  },
+  {
+    url: "https://owasp.org",
+    type: "website",
+    title: "OWASP",
+    description: "The Open Web Application Security Project",
+    lang: "english",
+  },
+  {
+    url: "https://www.kisa.or.kr",
+    type: "website",
+    title: "한국인터넷진흥원(KISA)",
+    description:
+      "대한민국의 인터넷 진흥, 인터넷 정보보호 및 그에 대한 국제 협력 업무를 수행하는 과학기술정보통신부 산하 위탁집행형 준정부기관",
+    lang: "korean",
+  },
+  {
+    url: "https://www.boho.or.kr",
+    type: "website",
+    title: "KISA 보호나라",
+    description:
+      "경보단계, 최신 보안취약점 관련 대국민 예방 및 대책 안내 · 관련 보고서, 교육자료, 동영상, 웹툰, 정보보호 실천수칙 등 정보보호 콘텐츠 제공",
+    lang: "korean",
+  },
+  {
+    url: "https://knvd.krcert.or.kr",
+    type: "website",
+    title: "KRCERT",
+    description: "한국인터넷진흥원 취약점 정보",
+    lang: "korean",
+  },
+  {
+    url: "https://www.pipc.go.kr",
+    type: "website",
+    title: "개인정보보호위원회",
+    description: "개인정보보호법에 따른 개인정보 보호 및 보안에 관한 정보 제공",
+    lang: "korean",
+  },
+  {
+    url: "https://web.dev",
+    type: "website",
+    title: "Web.dev",
+    description:
+      "Get the web's modern capabilities on your own sites and apps with useful guidance and analysis from web.dev",
+    lang: "english",
+  },
+  {
+    url: "https://refactoring.guru",
+    type: "website",
+    title: "Refactoring Guru",
+    description: "Design Patterns and Refactoring",
+    lang: "english",
   },
 ];
