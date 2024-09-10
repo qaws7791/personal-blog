@@ -1,0 +1,274 @@
+---
+title: "Use Zod for TypeScript Validation"
+description: "Zod를 사용하여 TypeScript 유효성 검사하기"
+date: "2024-09-10"
+---
+
+## Zod란?
+
+zod는 TypeScript를 위한 스키마 정의 및 유효성 검사 라이브러리입니다. zod는 다음과 같은 기능을 제공합니다.
+
+- TypeScript를 사용하여 스키마를 정의할 수 있습니다.
+- 스키마를 사용하여 데이터를 유효성 검사할 수 있습니다.
+- 스키마를 사용하여 데이터를 변환할 수 있습니다.
+
+## Zod 설치하기
+
+```bash
+npm install zod       # npm
+yarn add zod          # yarn
+bun add zod           # bun
+pnpm add zod          # pnpm
+```
+
+## Zod 사용하기
+
+```typescript
+import { z } from "zod";
+
+const schema = z.object({
+  name: z.string(),
+  age: z.number(),
+});
+
+const data = {
+  name: "John Doe",
+  age: 30,
+};
+
+try {
+  const result = schema.parse(data);
+  console.log(result);
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    console.error(error.errors);
+  } else {
+    console.error(error);
+  }
+}
+```
+
+## form 제출 전 유효성 검사하기
+
+html form에서 submit 이벤트가 발생했을 때, form 데이터를 유효성 검사하고, 유효하지 않은 데이터가 있을 경우 alert을 띄우는 예제입니다.
+
+```typescript
+import { z } from "zod";
+
+const schema = z.object({
+  name: z.string(),
+  age: z.number(),
+});
+
+const form = document.querySelector("form");
+
+const onSubmit = (event: Event) => {
+  event.preventDefault();
+
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+
+  try {
+    schema.parse(data);
+    alert("유효한 데이터입니다.");
+  } catch (error) {
+    alert("유효하지 않은 데이터입니다.");
+  }
+};
+```
+
+## react-hook-form과 함께 사용하기
+
+react-hook-form은 React에서 form을 쉽게 다룰 수 있도록 도와주는 라이브러리입니다. zod와 react-hook-form을 함께 사용하여 form 데이터를 유효성 검사하는 예제입니다.
+
+```typescript
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const formSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8).max(20),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+export default function SignUpForm() {
+  const { register, handleSubmit, reset } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = handleSubmit(async (data: FormData) => {
+    try {
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        alert("회원가입이 완료되었습니다.");
+      } else {
+        alert("회원가입에 실패했습니다.");
+      }
+      reset();
+    } catch (error) {
+      console.error(error);
+      alert("회원가입에 실패했습니다.");
+    }
+  });
+
+  return (
+    <form onSubmit={onSubmit}>
+      <input type="email" {...register("email")} />
+      <input type="password" {...register("password")} />
+      <button type="submit">회원가입</button>
+    </form>
+  );
+}
+```
+
+## 환경변수 유효성 검사하기
+
+process.env의 각각의 값은 항상 `string | undefined` 타입입니다.
+zod를 사용하여 process.env의 값들을 유효성 검사하면 빌드 시점에 환경변수의 유효성을 쉽게 검사할 수 있습니다.
+이러한 방식은 환경변수가 항상 `string` 타입으로 사용되는 것을 보장할 수 있습니다.
+
+```typescript
+// !(Definite Assignment Assertions)를 사용해 컴파일러에게 해당 값이 항상 존재한다고 알려줍니다.
+// ⚠️ 타입스크립트의 장점인 타입 안정성을 잃을 수 있습니다.
+const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL!;
+const NEXT_PUBLIC_API_KEY = process.env.NEXT_PUBLIC_API_KEY!;
+```
+
+```typescript
+// 예전 방식
+// process.env의 타입을 전역적으로 정의하는 방식
+// ⚠️ 타입정의만으로는 환경 변수가 실제로 존재하는지 보장할 수 없습니다.
+
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      NEXT_PUBLIC_API_URL: string;
+      NEXT_PUBLIC_API_KEY: string;
+    }
+}
+```
+
+```typescript
+import { z } from "zod";
+
+const envSchema = z.object({
+  NEXT_PUBLIC_API_URL: z.string().url(),
+  NEXT_PUBLIC_API_KEY: z.string(),
+});
+
+const env = envSchema.parse(process.env);
+
+export default env;
+```
+
+```typescript
+import env from "./env";
+
+console.log(env.NEXT_PUBLIC_API_URL); // 해당 값은 항상 string 타입입니다.
+console.log(env.NEXT_PUBLIC_API_KEY); // 해당 값은 항상 string 타입입니다.
+```
+
+## 백엔드에서 API 요청의 유효성 검사하기
+
+백엔드에서 API 요청의 유효성을 검사할 때도 zod를 사용할 수 있습니다.
+zod는 백엔드에서도 사용할 수 있도록 JavaScript 버전을 제공합니다.
+
+```typescript
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8).max(20),
+});
+
+export async function POST(request: Request): Promise<Response> {
+  try {
+    const data = await request.json();
+    schema.parse(data);
+    // 유효한 데이터일 경우
+    return new Response("유효한 데이터입니다.");
+  } catch (error) {
+    // 유효하지 않은 데이터일 경우
+    return new Response("유효하지 않은 데이터입니다.", { status: 400 });
+  }
+}
+```
+
+## 응답 데이터 유효성을 검증하는 이유
+
+이는 parse 메서드가 깊은 복사를 수행하기 때문입니다. 정해진 스키마의 데이터만을 반환하므로, 다른 데이터가 응답에 포함되어 있을 경우 무시됩니다.
+
+```typescript
+import { z } from "zod";
+const userSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string().email(),
+});
+
+type User = z.infer<typeof userSchema>;
+
+const data = userSchema.parse({
+    id: 1,
+    name: "John Doe",
+    email: "example@example.com",
+    age: 30,
+})
+
+console.log(data);
+/*
+age는 userSchema에 정의되어 있지 않으므로 무시됩니다.
+{
+  id: 1,
+  name: 'John Doe',
+  email: 'example@example.com',
+}
+*/
+```
+
+
+## 프론트엔드 API 응답의 유효성 검사하기
+
+프론트엔드에서 API 응답의 유효성을 검사할 때도 zod를 사용할 수 있습니다.
+
+
+```typescript
+import { z } from "zod";
+
+const userSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string().email(),
+});
+
+type User = z.infer<typeof userSchema>;
+
+async function fetchUser(id: number): Promise<User> {
+  return fetch(`/api/users/${id}`)
+    .then((res) => res.json())
+    .then((data) => userSchema.parse(data));
+}
+
+// 사용 예시
+fetchUser(1)
+  .then((user) => {
+    console.log(user);
+  })
+  .catch((error) => {
+    if (error instanceof z.ZodError) {
+      console.error(error.errors);
+    } else {
+      console.error(error);
+    }
+  });
+````
