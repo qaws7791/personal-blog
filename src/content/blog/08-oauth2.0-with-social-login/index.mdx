@@ -1,0 +1,362 @@
+---
+title: "OAuth2.0 with Social Login"
+description: "OAuth2.0과 Social Login을 구현하는 방법"
+date: "2024-09-19"
+---
+
+
+
+## OAuth2.0 소개
+
+OAuth 2.0은 현대 웹 애플리케이션에서 가장 널리 사용되는 인증 및 권한 부여 프로토콜입니다. 사용자가 신뢰할 수 있는 타사 서비스(예: Google, Facebook)를 통해 애플리케이션에 로그인할 수 있게 해주며, 이를 통해 사용자 비밀번호를 직접 다루지 않고도 사용자 인증을 처리할 수 있습니다.
+
+
+
+## OAuth의 필요성
+
+과거에는 타사 애플리케이션에서 계정에 대한 액세스를 부여하기 위해 비밀번호를 제공하는 방식을 사용했다. 이러한 방식은 애플리케이션의 사용자와 같은 수준의 권한을 갖게 되고 애플리케이션이 비밀번호를 수집하고 저장하게 되어 잠재적인 위험성이 매우 높다
+
+- 애플리케이션이 사용자과 같은 수준의 권한을 갖게 됨
+- 애플리케이션이 비밀번호를 수집하고 저장하게 됨
+- 애플리케이션의 액세스 권한을 취소(회수)하기 위해서는 비밀번호를 변경해야 함
+
+
+
+## OAuth 2.0의 개념
+
+OAuth는 "Open Authorization"의 약자로, 사용자가 자신이 가진 자원(예: 소셜 미디어 계정, 이메일)에 대해 타사 애플리케이션이 액세스하도록 승인하는 **액세스 위임 개방형 표준**입니다. Twitter API에 대한 더 나은 인증 방법을 찾기 위해 OAuth에 대한 논의가 시작되었으며, 2010년 OAuth 1의 초안이 게시되었고 2012년에 OAuth 1.0의 복잡함을 개선한 버전인 OAuth 2.0이 등장했습니다.
+
+- 2010년 4월 - OAuth1.0 https://datatracker.ietf.org/doc/html/rfc5849
+- 2012년 10월 - OAuth2.0 https://datatracker.ietf.org/doc/html/rfc6749
+
+
+
+OAuth 2.0의 핵심 개념은 **액세스 토큰(access token)**을 사용하여 사용자 대신 애플리케이션이 특정 리소스에 접근할 수 있도록 권한을 부여한다는 것입니다.
+
+## OAuth 2.0의 주요 요소
+
+OAuth 2.0에서는 몇 가지 중요한 역할이 존재합니다.
+
+### 1. **리소스 소유자 (Resource Owner)**
+   - 일반적으로 사용자를 의미합니다. 리소스 소유자는 자신의 자원(예: 프로필 정보, 이메일 등)에 대한 접근을 허용합니다.
+
+### 2. **클라이언트 (Client)**
+   - 리소스 소유자의 자원에 접근하려는 애플리케이션입니다. 클라이언트는 권한을 얻기 위해 권한 부여 서버를 통해 OAuth 2.0 플로우를 수행합니다.
+
+### 3. **권한 부여 서버 (Authorization Server)**
+   - 클라이언트가 올바르게 인증되었는지 확인하고, 리소스 소유자의 승인을 받은 후 액세스 토큰을 발급하는 서버입니다.
+
+### 4. **리소스 서버 (Resource Server)**
+   - 액세스 토큰을 통해 클라이언트가 접근하는 실제 자원이 존재하는 서버입니다. 리소스 서버는 클라이언트가 유효한 토큰을 소지한 경우에만 요청을 처리합니다.
+
+## OAuth 2.0의 작동 원리
+
+OAuth 2.0은 다양한 플로우를 지원하며, 가장 일반적인 플로우는 **Authorization Code Grant**입니다. 이 플로우는 보안이 뛰어나서 가장 많이 사용됩니다. 아래는 Authorization Code Grant 플로우의 순서입니다:
+
+1. **사용자 승인 요청**: 클라이언트는 권한 부여 서버에 사용자의 승인을 요청합니다.
+2. **승인 코드 발급**: 사용자가 승인을 제공하면, 권한 부여 서버는 클라이언트에게 승인 코드를 보냅니다.
+3. **액세스 토큰 요청**: 클라이언트는 이 승인 코드를 사용하여 권한 부여 서버로부터 액세스 토큰을 요청합니다.
+4. **액세스 토큰 발급**: 권한 부여 서버는 클라이언트의 요청을 검증한 후 액세스 토큰을 발급합니다.
+5. **리소스 서버 접근**: 클라이언트는 발급받은 액세스 토큰을 사용해 리소스 서버에서 데이터를 요청할 수 있습니다.
+
+## 주요 OAuth 2.0 플로우
+
+### 1. **Authorization Code Grant**
+   - 가장 많이 사용되는 플로우로, 보안이 중요할 때 적합합니다. 주로 서버 사이드 애플리케이션에서 사용됩니다.
+
+### 2. **Implicit Grant**
+   - 클라이언트가 신뢰할 수 없는 환경(예: JavaScript SPA)에서 사용되는 방식으로, 토큰이 URL을 통해 노출될 수 있기 때문에 보안이 낮습니다.
+
+### 3. **Resource Owner Password Credentials Grant**
+   - 사용자가 직접 자신의 자격 증명(사용자 이름, 비밀번호)을 클라이언트에 제공하는 방식입니다. 보안성이 낮아 잘 사용되지 않습니다.
+
+### 4. **Client Credentials Grant**
+   - 주로 서버 간 통신에 사용되며, 클라이언트가 자체 자격 증명을 사용해 리소스 서버에 접근하는 방식입니다.
+
+## OAuth 2.0과 보안
+
+OAuth 2.0은 강력한 권한 위임 프로토콜이지만, 올바르게 구현하지 않으면 보안 문제가 발생할 수 있습니다. 몇 가지 보안 고려사항은 다음과 같습니다:
+
+- **redirect_uri 사용**: 권한 코드를 가로챌 수 있는 리디렉션 공격을 방지하기 위해 서비스에 등록된 URL로만 사용자를 리디렉션하도록 허용. 쿼리 파라미터를 허용하지 않고 정확한 리디렉션 URL 일치를 비교하는 것이 좋습니다.
+- **HTTPS 사용**: OAuth 2.0 통신은 반드시 HTTPS로 보호되어야 합니다. HTTPS가 아닌 경우 권한 코드를 가로채는 <u>세션 하이재킹</u>이 가능합니다.
+- **상태(State) 파라미터**: CSRF 공격을 방지하기 위해 상태 파라미터를 사용하여 요청의 유효성을 검증합니다. 또한 PKCE 매개변수를 사용하지 않을 경우 이전 페이지로의 리디렉션을 위한 URL을 인코딩하여 전달하는 용도로 사용할 수도 있습니다. 이는 OAuth2.0이 보안상 정해진 파라미터(state) 외에는 전달할 수 없기 때문입니다. 서명되지 않거나 암호화되지 않은 state 매개변수는 신뢰할 수 없으므로 검증이 필요할 수 있습니다.
+- **Refresh Token 사용**: 액세스 토큰의 수명을 짧게 설정하고, 리프레시 토큰을 통해 새로운 토큰을 발급받는 방식을 사용하는 것이 좋습니다.
+- **SDK 사용**: OAuth 공급자(Google, Facebook, Twitter)가 클라이언트 환경에 최적화된 SDK를 제공하는 경우, 이를 사용하는 것이 좋습니다.
+- **API 키와 토큰 관리**: API 키와 토큰을 누구나  접근 가능한 소스 코드에 포함 시키지 마세요. 
+  - 서버 측 환경 변수를 사용하세요
+  - `.gitignore`를 사용하여 소스 제어에서 구성 파일이 추적되지 않도록 하세요. 한번 버전 제어에 API 키가 작성된 경우, 해당 버전의 기록으로 계속 남아있을 수 있으므로 API 키를 재발급하는 것이 좋습니다
+
+- **데이터베이스**: 액세스 토큰을 데이터베이스 저장하는 경우 보안에 신경써야 합니다
+  - 액세스 토큰을 데이터베이스에 저장하는 경우 토큰 사용자만 읽을 수 있도록 권한을 제한하세요
+  - 액세스 토큰은 데이터베이스에 저장되기 전 암호화되어야 합니다
+
+
+
+
+## 소셜 로그인 구현
+
+이제부터는 구글, 카카오, 네이버의 소셜 로그인을 구현을 하는 방법에 알아봅니다. 모든 내용은 공식 문서에 기반합니다. 아래 링크는 세 가지 소셜 로그인을 구현하는 예제 리포지토리입니다.
+
+https://github.com/qaws7791/three-social-logins
+
+### 1. 권한 부여를 위해 사용되는 주요 쿼리 매개 변수
+
+| 쿼리 매개 변수 | 타입   | 설명                                                         |
+| -------------- | ------ | ------------------------------------------------------------ |
+| client_id      | string | OAuth 공급자의 개발자 포털로부터 앱 등록 시 받을 수 있는 클라이언트 ID |
+| redirect_uri   | string | 권한이 부여된 후 사용자를 이동시킬 애플리케이션의 URL로, 보안을 위해 사용할 redirect_uri를 미리 OAuth 공급자에게 등록하여 사용 |
+| scope          | string | 애플리케이션이 액세스할 수 있는 리소스를 식별하는 범위 목록으로, 공백으로 구분하여 여러 가지 권한을 지정할 수 있다 |
+| state          | string | 추측할 수 없는 임의 문자열을 사용하여 교차 사이트 요청 위조 공격(CSRF)으로 부터 보호하기 위해 사용한다. redirect_uri로 넘어갈 때 code와 함께 전달된다 |
+
+
+
+### 2. 액세스 토큰 발급(승인 코드 교환)을 위해 사용되는 주요 매개 변수
+
+| 매개 변수     | 타입   | 설명                                                         |
+| ------------- | ------ | ------------------------------------------------------------ |
+| client_id     | string | OAuth 공급자의 개발자 포털로부터 앱 등록 시 받을 수 있는 클라이언트 ID |
+| redirect_uri  | string | 권한이 부여된 후 사용자를 이동시킬 애플리케이션의 URL로, 보안을 위해 사용할 redirect_uri를 미리 OAuth 공급자에게 등록하여 사용 |
+| client_secret | string | OAuth 공급자로 부터 받은 클라이언트 비밀 값으로 개발자 포털에서 필수 또는 선택적으로 얻을 수 있다. 토큰 교환을 위해 사용 |
+| code          | string | 권한 부여 후 redirect_uri에서 쿼리 매개 변수로 받은 승인 코드로, 풀 네임은 **Authorization code**입니다 |
+
+
+
+### 3. API 호출을 위해 사용되는 주요 매개 변수
+
+| 매개 변수     | 타입   | 설명                                            |
+| ------------- | ------ | ----------------------------------------------- |
+| access_token  | string | api 호출을 위해 사용되는 Bearer 토큰            |
+| refresh_token | string | access_token 만료 시 재발급을 위해 사용되는토큰 |
+
+
+
+## 구글 로그인
+
+### 1. 승인 URL 생성하고 리디렉션
+
+```html
+<a href="https://accounts.google.com/o/oauth2/v2/auth?
+ scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email&
+ access_type=offline&
+ include_granted_scopes=true&
+ response_type=code&
+ state=state_parameter_passthrough_value&
+ redirect_uri=https%3A//oauth2.example.com/code&
+ client_id=client_id">
+ 구글 로그인으로 이동
+ </a>
+```
+
+### 2. 승인 코드를 수신하고 토큰 발급 요청하기
+
+토큰 발급 요청하기
+
+```http
+POST /token HTTP/1.1
+Host: oauth2.googleapis.com
+Content-Type: application/x-www-form-urlencoded
+
+code=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7&
+client_id=your_client_id&
+client_secret=your_client_secret&
+redirect_uri=https%3A//oauth2.example.com/code&
+grant_type=authorization_code
+```
+
+토큰 발급 요청에 대한 응답
+
+```json
+{
+  "access_token": "1/fFAGRNJru1FTz70BzhT3Zg",
+  "expires_in": 3920,
+  "token_type": "Bearer",
+  "scope": "https://www.googleapis.com/auth/drive.metadata.readonly",
+  "refresh_token": "1//xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI"
+}
+```
+
+### 3. 액세스 토큰을 사용해 api 호출하기
+
+유저 프로필 요청하기
+
+```http
+GET /oauth2/v3/userinfo HTTP/1.1
+HOST: www.googleapis.com
+Authorization: Bearer access_token
+```
+
+유저 프로필 응답
+
+```json
+{
+  "sub": "116649916093655224058",
+  "name": "user_namer",
+  "given_name": "user_name",
+  "picture": "https://lh3.googleusercontent.com/a/~",
+  "email": "abcd1234@gmail.com",
+  "email_verified": true
+}
+```
+
+
+
+## 카카오 로그인
+
+### 1. 승인 URL 생성하고 리디렉션
+
+```html
+<a href="https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=REST_API_KEY&redirect_uri=REDIRECT_URI">
+ 카카오 로그인으로 이동
+</a>
+```
+
+### 2. 승인 코드를 수신하고 토큰 발급 요청하기
+
+토큰 발급 요청하기
+
+```http
+POST /oauth/token HTTP/1.1
+Host:kauth.kakao.com
+Content-Type: application/x-www-form-urlencoded
+
+code=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7&
+client_id=your_client_id&
+client_secret=your_client_secret&
+redirect_uri=https%3A//oauth2.example.com/code&
+grant_type=authorization_code
+```
+
+토큰 발급 요청에 대한 응답
+
+``` json
+{
+    "token_type":"bearer",
+    "access_token":"${ACCESS_TOKEN}",
+    "expires_in":43199,
+    "refresh_token":"${REFRESH_TOKEN}",
+    "refresh_token_expires_in":5184000,
+    "scope":"account_email profile"
+}
+```
+
+### 3. 액세스 토큰을 사용해 api 호출하기
+
+유저 프로필 요청하기
+
+```http
+GET /v2/user/me HTTP/1.1
+HOST: kapi.kakao.com
+Authorization: Bearer access_token
+Content-type: application/x-www-form-urlencoded
+```
+
+유저 프로필 응답
+
+```json
+{
+    "id":123456789,
+    "connected_at": "2022-04-11T01:45:28Z",
+    "kakao_account": {
+        // 이름 동의항목 필요
+        "name_needs_agreement":false, 
+        "name":"홍길동",
+        // 카카오계정(이메일) 동의항목 필요
+        "email_needs_agreement":false, 
+        "is_email_valid": true,   
+        "is_email_verified": true,
+        "email": "sample@sample.com",
+        "profile": {
+            // 프로필 또는 닉네임 동의항목 필요
+            "nickname": "홍길동",
+            // 프로필 또는 프로필 사진 동의항목 필요
+            "thumbnail_image_url": "http://yyy.kakao.com/.../img_110x110.jpg",
+            "profile_image_url": "http://yyy.kakao.com/dn/.../img_640x640.jpg",
+            "is_default_image":false,
+            "is_default_nickname": false
+        },
+        ...
+    },
+    "properties":{
+        "${CUSTOM_PROPERTY_KEY}": "${CUSTOM_PROPERTY_VALUE}",
+        ...
+    },
+    "for_partner": {
+        "uuid": "${UUID}"
+    }
+}
+```
+
+
+
+## 네이버 로그인
+
+### 1. 승인 URL 생성하고 리디렉션
+
+```html
+<a href="https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=jyvqXeaVOVmV&redirect_uri=http%3A%2F%2Fservice.redirect.url%2Fredirect&state=hLiDdL2uhPtsftcU">
+네이버 로그인으로 이동
+</a>
+```
+
+### 2. 승인 코드를 수신하고 토큰 발급 요청하기
+
+토큰 발급 요청하기
+
+```http
+POST /oauth2.0/token HTTP/1.1
+Host:nid.naver.com
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code&
+client_id=jyvqXeaVOVmV&
+client_secret=527300A0_COq1_XV33cf
+&code=EIc5bFrl4RibFls1&state=9kgsGTfH4j7IyAkg
+```
+
+토큰 발급 요청에 대한 응답
+
+```json
+{
+    "access_token":"AAAAQosjWDJieBiQZc3to9YQp6HDLvrmyKC+6+iZ3gq7qrkqf50ljZC+Lgoqrg",
+    "refresh_token":"c8ceMEJisO4Se7uGisHoX0f5JEii7JnipglQipkOn5Zp3tyP7dHQoP0zNKHUq2gY",
+    "token_type":"bearer",
+    "expires_in":"3600"
+}
+```
+
+### 3. 액세스 토큰을 사용해 api 호출하기
+
+유저 프로필 요청하기
+
+```http
+GET v1/nid/me HTTP/1.1
+Host: openapi.naver.com
+User-Agent: curl/7.43.0
+Accept: */*
+Content-Type: application/xml
+Authorization: Bearer {네이버 로그인 인증 후 받은 접근 토큰 값}
+```
+
+유저 프로필 응답
+
+```json
+{
+  "resultcode": "00",
+  "message": "success",
+  "response": {
+    "email": "openapi@naver.com",
+    "nickname": "OpenAPI",
+    "profile_image": "https://ssl.pstatic.net/static/pwe/address/nodata_33x33.gif",
+    "age": "40-49",
+    "gender": "F",
+    "id": "32742776",
+    "name": "오픈 API",
+    "birthday": "10-01",
+    "birthyear": "1900",
+    "mobile": "010-0000-0000"
+  }
+}
+```
+
+
+
