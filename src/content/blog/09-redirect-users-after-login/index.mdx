@@ -1,0 +1,226 @@
+---
+title: "How to Redirect Users to the Previous Page After Login in Next.js"
+description: "Next.js에서 로그인 후 사용자를 이전 페이지로 리디렉션하는 방법을 알아봅니다."
+date: "2024-09-20"
+---
+
+
+## 로그인 이후 이전 페이지로 돌아가야 하는 이유
+
+로그인 후 이전 페이지로 돌아가는 것이 왜 중요할까요? 예를 들어 사용자가 [핀터레스트(Pinterest)](https://kr.pinterest.com/)에서 어떤 작품을 구경하고 있습니다. 사용자는 해당 작품이 마음에 들어 계정에 저장하고 싶어 합니다. 사용자는 계정에 접근하기 위해 로그인을 하려고 합니다. 만약 사용자가 로그인 페이지로 이동하여 로그인을 완료한 후 메인 페이지로 돌아간다면 사용자는 다시 해당 작품을 찾아야 합니다. 또는 브라우저의 뒤로 가기 버튼을 여러 번 눌러 로그인 이전 페이지를 찾으려고 시도 할 수 있습니다. 이러한 **사용자 경험을 향상**시키기 위해 로그인 후 사용자를 이전 페이지로 리디렉션하는 것이 좋습니다.
+
+로그인 페이지에서 로그인을 성공하면 사용자를 이전 페이지로 리디렉션하는 것이 좋습니다. 사용자가 로그인 페이지로 이동하기 전에 방문하던 페이지로 돌아가기 때문입니다. 이전 페이지로 돌아가는 것은 사용자 경험을 향상시키는 데 도움이 됩니다.
+
+## 다른 사이트에서 이전 페이지를 기억하는 방법
+
+다른 사이트에서 사용자를 이전 페이지로 리디렉션하는 방법은 다양합니다. 대부분의 사이트는 사용자가 로그인 페이지로 이동하기 전에 방문하던 페이지의 URL을 기억합니다. 사용자가 로그인을 완료하면 이전 페이지로 리디렉션합니다. 
+
+### 네이버
+
+```
+https://nid.naver.com/nidlogin.login?url={이전_페이지_URL}
+```
+
+#### Google
+```
+https://accounts.google.com/InteractiveLogin/signinchooser?continue={이전_페이지_URL}
+```
+
+### Facebook
+```
+https://www.facebook.com/login/?next={이전_페이지_URL}
+```
+
+### Instagram
+```
+https://www.instagram.com/accounts/login/?next={이전_페이지_URL}
+```
+
+
+
+## Next.js에서 이전 페이지로 리디렉션하는 방법
+
+Next.js에서 이전 페이지로 리디렉션하는 방법은 다음과 같습니다.
+
+
+```tsx
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const redirect = searchParams.get("redirect") || "/";
+        router.push(redirect);
+      } else {
+        alert("로그인에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setEmail("");
+      setPassword("");
+    }
+  };
+
+  return (
+    <form onSubmit={handleLogin}>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button type="submit">로그인</button>
+    </form>
+  );
+}
+```
+
+
+
+## 리디렉션 방식의 로그인에서 이전 페이지로 리디렉션하는 방법
+
+OAuth2.0, OpenID Connect 등의 리디렉션 방식으로 로그인하는 경우에는 위의 일반적인 로그인 방식을 사용할 수 없습니다. 이 경우에는 로그인 페이지에서 승인 URL로 리디렉션 하기 전에 이전 페이지의 URL을 기억해야 합니다. 그 후 redirect_uri로 사용자가 돌아오면 저장해둔 이전 페이지를 사용하여 사용자를 리디렉션합니다. 이때 보안을 위해 state 파라미터를 사용하여 CSRF 공격을 방지해야 합니다.
+
+
+
+### 1. 로그인 버튼을 클릭하여 로그인 페이지로 이동합니다.
+
+
+```tsx
+"use client";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+export default function LoginButton() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const handleGoToLogin = () => {
+    const currentUrl = encodeURIComponent(pathname + searchParams.toString());
+    router.push(`/auth/signin?next=${currentUrl}`);
+  };
+  return (
+    <button
+      onClick={handleGoToLogin}
+    >
+      Login
+    </button>
+  );
+}
+```
+
+
+
+### 2. 로그인 페이지에서는 redirect_url을 저장합니다.
+
+CSRF 공격을 방지하기 위해 로그인 페이지에서는 state를 생성하여 쿠키에 저장합니다. 이때 이전 페이지 Url(next 파라미터 값)도 쿠키에 저장합니다. 여러 저장소 중 쿠키를 사용하는 이유는 httpOnly 속성을 통해 서버 측에서만 접근할 수 있기 때문입니다. 쿠키를 꼭 2개로 나누어 저장할 필요는 없지만, 보안을 위해 state와 redirect_url을 따로 저장하는 것이 좋습니다.
+
+```tsx
+// app/auth/signin/route.ts
+import { generateState } from "@/server/lib/utils";
+import { cookies } from "next/headers";
+
+export function GET(request: Request) {
+  const url = new URL(request.url);
+  const next = decodeURIComponent(
+    url.searchParams.get("next") || "/"
+  ); // 이전 페이지 URL을 가져옵니다.
+
+  const randomState = generateState(); // CSRF 공격을 방지하기 위한 랜덤한 state를 생성합니다.
+  const loginUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI}&response_type=code&state=${randomState}`;
+
+  // redirect_url과 state를 쿠키에 저장합니다.
+  cookies().set("callback_url", next, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+  });
+  cookies().set("state", randomState, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+  });
+ 
+
+  // 로그인 페이지를 렌더링합니다.
+  return new Response(
+    `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Login</title>
+        <style>
+          ...
+        </style>
+        </head>
+        <body>
+          <h1>Login</h1>
+          <p>Click the button below to login with Kakao.</p>
+          <a href=${loginUrl}>
+	      카카오 로그인
+          </a>
+        </body>
+    </html>`,
+    {
+      headers: {
+        "content-type": "text/html",
+      },
+    }
+  );
+}
+```
+
+
+
+### 3. 로그인 성공 페이지에서 이전 페이지로 리디렉션합니다.
+
+로그인 성공 후 사용자를 이전 페이지로 리디렉션하기 위해 로그인 성공 페이지에서는 저장 해 둔 이전 페이지 URL과 state를 사용합니다. 이전 페이지 URL은 state를 쿠키에서 가져와서 요청한 state와 저장해둔 state를 비교합니다. 여기서 요청한 state와 쿠키에 저장된 state가 다르면 CSRF 공격으로 간주하고 별도의 처리를 할 수 있습니다. 두 state가 같다면 이전 페이지로 리디렉션합니다.
+
+```tsx
+// app/auth/signin/success/route.ts
+
+import { cookies } from "next/headers";
+
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+
+export function GET(request: Request) {
+  const url = new URL(request.url);
+  const requestState = url.searchParams.get("state");
+  const clientState = cookies().get("state")?.value;
+  const clientCallbackUrl = cookies().get("callback_url")?.value || "/";
+
+  if (clientCallbackUrl) cookies().delete("callback_url");
+  if (clientState) cookies().delete("state");
+
+  // 클라이언트에서 저장한 state와 요청한 state가 다르면 CSRF 공격으로 간주합니다.
+  if (requestState !== clientState) {
+    // CSRF 공격으로 간주 후 별도의 처리를 할 수 있습니다.
+    return redirect("/");
+  }
+
+  // 이전 페이지로 리디렉션합니다.
+  return redirect(clientCallbackUrl);
+}
+```
