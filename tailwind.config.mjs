@@ -6,7 +6,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Hahmlet Variable", ...defaultTheme.fontFamily.sans],
+        sans: ["Noto Sans KR Variable", ...defaultTheme.fontFamily.sans],
       },
     },
   },
