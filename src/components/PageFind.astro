@@ -10,7 +10,7 @@ import Search from "astro-pagefind/components/Search";
   >
     <div
       id="pagefind-container"
-      class="m-0 flex h-fit max-h-[80%] w-full max-w-screen-md flex-col overflow-auto rounded-xl border border-white/20 bg-neutral-900 p-2 px-4 py-3 shadow-lg"
+      class="mt-14 flex h-fit max-h-[80%] w-full max-w-screen-md flex-col overflow-auto rounded-xl border border-white/20 bg-neutral-900 p-2 px-4 py-3 shadow-lg"
     >
       <Search
         id="search"
@@ -24,7 +24,7 @@ import Search from "astro-pagefind/components/Search";
       <div class="prose-invert mr-2 pb-1 pt-4 text-right text-xs">
         닫으려면 <span class="prose prose-invert text-xs"
           ><kbd class="">Esc</kbd></span
-        > 키를 누르거나 바깥을 클릭하세요.
+        > 키를 누르거나 검색 창 바깥을 클릭하세요.
       </div>
     </div>
   </div>
@@ -49,6 +49,7 @@ import Search from "astro-pagefind/components/Search";
     search.value = "";
     backdrop?.classList.remove("visible");
     backdrop?.classList.add("invisible");
+    document.body.style.overflow = "auto";
   }
 
   // open pagefind and prevent scroll
@@ -70,20 +71,21 @@ import Search from "astro-pagefind/components/Search";
   // close pagefind and enable scroll
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" || e.keyCode === 27) {
+      console.log("pressed escape");
       closePagefind();
-      document.body.style.overflow = "auto";
     }
   });
 
   // close pagefind when searched result(link) clicked
   document.addEventListener("click", (event) => {
     if (event.target.classList.contains("pagefind-ui__result-link")) {
+      console.log("clicked link");
       closePagefind();
     }
   });
 
   backdrop?.addEventListener("click", (event) => {
-    if (!event.target.closest("#pagefind-container")) {
+    if (event.target === backdrop) {
       closePagefind();
     }
   });
