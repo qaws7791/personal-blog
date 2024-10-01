@@ -4,7 +4,6 @@ import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
 import FormattedDate from "@components/FormattedDate.astro";
 import { readingTime } from "@lib/utils";
-import BackToPrevious from "@components/BackToPrevious.astro";
 import PostNavigation from "@components/PostNavigation.astro";
 import TableOfContents from "@components/TableOfContents.astro";
 import Giscus from "@components/Giscus.astro";
@@ -54,9 +53,6 @@ const { Content, headings } = await post.render();
 
 <Layout title={post.data.title} description={post.data.description}>
   <Container>
-    <!-- <div class="animate">
-      <BackToPrevious href="/blog">뒤로 가기</BackToPrevious>
-    </div> -->
     <div class="my-10 space-y-1">
       <h1 class="animate text-3xl font-semibold text-white">
         {post.data.title}
