@@ -2,11 +2,11 @@
 import type { CollectionEntry } from "astro:content";
 
 type Props = {
-  entry: CollectionEntry<"blog"> | CollectionEntry<"projects">;
+  entry: CollectionEntry<"blog">;
 };
 
 const { entry } = Astro.props as {
-  entry: CollectionEntry<"blog"> | CollectionEntry<"projects">;
+  entry: CollectionEntry<"blog">;
 };
 ---
 
@@ -14,7 +14,7 @@ const { entry } = Astro.props as {
   href={`/${entry.collection}/${entry.slug}`}
   class="not-prose group relative flex flex-nowrap rounded-lg border border-white/20 px-4 py-3 pr-10 transition-all duration-200 ease-linear hover:bg-neutral-800/50 hover:text-white hover:shadow-[0_0_8px_0_rgb(255,255,255,10%)] focus-visible:bg-white/5 focus-visible:text-white"
 >
-  <div class="flex flex-1 flex-col truncate">
+  <div class="flex flex-1 flex-col">
     <time
       datetime={entry.data.date.toISOString()}
       class="text-xs text-gray-400"
@@ -26,6 +26,15 @@ const { entry } = Astro.props as {
     </div>
     <div class="text-sm">
       {entry.data.description}
+    </div>
+    <div class="mt-1 flex gap-1">
+      {
+        entry.data.tags.map((tag) => (
+          <span class="rounded-full border border-white/20 px-2 py-0.5 text-xs text-gray-400">
+            {tag}
+          </span>
+        ))
+      }
     </div>
   </div>
   <svg
