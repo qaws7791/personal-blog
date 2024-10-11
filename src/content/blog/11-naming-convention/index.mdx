@@ -1,0 +1,61 @@
+---
+title: "Naming Convention"
+description: "여러 가지 네이밍 컨벤션"
+date: "2024-09-25"
+tags: ["naming-convention", "javascript", "react", "database", "api"]
+---
+
+## 네이밍 컨벤션(Naming Convention)
+
+네이밍 컨벤션은 코드를 작성할 때 변수, 함수, 클래스, 파일 등의 이름을 지을 때 사용하는 규칙입니다. 네이밍 컨벤션을 잘 지키면 코드의 가독성을 높일 수 있고, 협업 시에도 코드를 이해하기 쉬워집니다. 다음은 여러 가지 네이밍 컨벤션을 정리한 것입니다. 일반적으로 영어를 사용하며, kebab-case, snake_case, camelCase, PascalCase 등의 케이스를 사용합니다.
+
+- kebab-case: 단어 사이에 하이픈(-)을 사용하는 방식
+- snake_case: 단어 사이에 언더바(_)를 사용하는 방식
+- camelCase: 첫 단어를 제외한 나머지 단어의 첫 글자를 대문자로 표기하는 방식
+- PascalCase: 모든 단어의 첫 글자를 대문자로 표기하는 방식
+- SCREAMING_SNAKE_CASE: 모든 글자를 대문자로 표기하고 단어 사이에 언더바(_)를 사용하는 방식
+
+
+
+
+## 자바스크립트(JavaScript)
+
+| 변수 종류                  | 케이스                    | 예시                       |
+| -------------------------- | ------------------------- | -------------------------- |
+| 상수                       | SCREAMING_SNAKE_CASE      | MAX_LENGTH                 |
+| 객체, 변수, 함수, 인스턴스 | camelCase                 | maxLength, fetchPost, user |
+| 클래스, 생성자 함수        | PascalCase                | Student                    |
+| 모듈                       | camelCase                 | userService                |
+| 이벤트 핸들러              | “on”로 시작하는 camelCase | onSubmit                   |
+
+## 리액트(React)
+
+| 변수 종류       | 케이스                        | 예시                           |
+| --------------- | ----------------------------- | ------------------------------ |
+| 폴더, 파일      | kebab-case                    | /user-components               |
+| 컴포넌트 폴더   | PascalCase                    | /ProductList                   |
+| 컴포넌트 파일   | .jsx / .tsx 확장자            | index.tsx, ProductList.tsx     |
+| 컴포넌트        | PascalCase                    | ProductList                    |
+| Props           | camelCase                     | userName                       |
+| State           | ”set”으로 시작하는 camelCase  | [count,setCount] = useState(0) |
+| 이벤트 핸들러   | “handle”로 시작하는 camelCase | handleClick                    |
+| 이벤트 프로퍼티 | “on”으로 시작으로 camelCase   | onClick                        |
+| hooks           | “use”로 시작하는 camelCase    | useState, useEffect, useUser   |
+
+## 데이터베이스(Database)
+
+| 분류       | 변수 종류 | 케이스              | 예시          |
+| ---------- | --------- | ------------------- | ------------- |
+| RDB | 테이블    | snake_case + 복수형 | user_accounts |
+|            | 열        | snake_case          | first_name    |
+
+
+
+## API(Application Programming Interface)
+
+| 분류     | 변수 종류        | 케이스                                                       | 예시                              |
+| -------- | ---------------- | ------------------------------------------------------------ | --------------------------------- |
+| Rest api | 리소스           | 명사형 /  kebab-case<br />”_” 대신 “-” 사용<br />복수형은 복수형 | …com/user-profile<br />…com/items |
+|          | 결과 데이터 변수 | snake_case                                                   | item_list                         |
+| JSON     | 모든 키          | camelCase                                                    | camel                             |
+
