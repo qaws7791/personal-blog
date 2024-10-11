@@ -1,0 +1,66 @@
+---
+import ArrowCard from "@components/ArrowCard.astro";
+import BackToPrevious from "@components/BackToPrevious.astro";
+import Container from "@components/Container.astro";
+import Layout from "@layouts/Layout.astro";
+import type { CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const allPosts = (await getCollection("blog"))
+    .filter((post) => !post.data.draft)
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+  const tags = [...new Set(allPosts.map((post) => post.data.tags).flat())];
+
+  return tags.map((tag) => {
+    const filteredPosts = allPosts.filter((post) =>
+      post.data.tags.includes(tag),
+    );
+
+    return {
+      params: { tag },
+      props: {
+        posts: filteredPosts,
+        tag,
+      },
+    };
+  });
+}
+
+const { posts } = Astro.props;
+const { tag } = Astro.params;
+---
+
+<Layout title={tag} description="Posts tagged with {tag}">
+  <Container>
+    <BackToPrevious href="/tags">태그 목록으로 가기</BackToPrevious>
+    <div class="my-6 space-y-1">
+      <h1 class="animate text-3xl font-semibold text-white">
+        {tag}
+      </h1>
+      <p class="animate text-lg">
+        Posts tagged with {tag}
+      </p>
+    </div>
+    <aside data-pagefind-ignore>
+      <div class="space-y-10">
+        <div class="space-y-4">
+          <section class="animate space-y-4">
+            <div>
+              <ul class="not-prose flex flex-col gap-4">
+                {
+                  posts.map((post) => (
+                    <li>
+                      <ArrowCard entry={post} />
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+          </section>
+        </div>
+      </div>
+    </aside>
+  </Container>
+</Layout>

@@ -60,6 +60,18 @@ const { Content, headings } = await post.render();
       <p class="text-lg">
         {post.data.description}
       </p>
+      <div class="mt-1 flex gap-1">
+        {
+          post.data.tags.map((tag) => (
+            <a
+              href={`/tags/${tag}`}
+              class="rounded-full border border-white/20 px-2 py-0.5 text-xs text-gray-400"
+            >
+              {tag}
+            </a>
+          ))
+        }
+      </div>
       <div class="animate flex items-center gap-1.5">
         <div class="font-base text-sm">
           <FormattedDate date={post.data.date} />
