@@ -5,7 +5,6 @@ import { SITE, HOME, SOCIALS } from "@consts";
 import ArrowCard from "@components/ArrowCard.astro";
 import Link from "@components/Link.astro";
 import { getCollection } from "astro:content";
-import type { CollectionEntry } from "astro:content";
 
 const blog = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
