@@ -1,0 +1,122 @@
+---
+title: "Design System with Tailwind CSS"
+description: "Tailwind CSS를 사용한 디자인 시스템 구축하기"
+date: "2024-10-22"
+tags: ["tailwind", "design-system"]
+---
+
+## TailwindCSS의 장점
+
+- 마크업 화면에서 즉시 스타일링
+- 유틸리티 중심의 클래스를 기반으로 재사용성이 높고 일관된 스타일 작성
+- CSS 방식이므로 CSS-In-JS 방식보다 런타임 환경에서 성능이 좋음. 
+- SSR에서 문제가 발생하지 않음
+- IntelliSense 확장프로그램을 통해 IDE에서 자동완성을 지원하여 빠르게 스타일링
+
+```
+┗ apps
+┗━━━ web(tailwind를 사용한 nextjs 앱)
+┗━━━ docs(tailwind를 사용한 storybook 문서)
+┗ packages
+┗━━━ tailwind-config(tailwind 공통 설정 관리)
+┗━━━ ui(tailwind를 사용한 공통 컴포넌트)
+```
+
+
+
+
+
+## 여러 Tailwind 함께 사용하기
+
+### Prefix 활용하기
+
+디자인 시스템에서는 `u-` 접두사와 함께 클래스 이름을 사용하여 다른 테일윈드 클래스와의 충돌을 피할 수 있다
+
+```typescript
+// path: packages/ui/tailwind.config.ts
+import sharedConfig from "@repo/tailwind-config";
+import type { Config } from "tailwindcss";
+import animatePlugin from "tailwindcss-animate";
+import defaultTheme from "tailwindcss/defaultTheme";
+
+const config: Config = {
+  content: ["./src/**/*.tsx", "./src/**/*.ts"],
+  presets: [sharedConfig],
+  plugins: [animatePlugin],
+  prefix: "u-",
+};
+
+export default config;
+
+```
+
+https://tailwindcss.com/docs/configuration#prefix
+
+
+
+### Preflight 활용하기
+
+tailwind css는 일관된 기본 스타일을 위해 `@tailwind base` 단계에서 기본 스타일을 삽입한다. 하지만 2개 이상의 tailwind css를 함께 사용하게 되면 기본 스타일이 2번 적용되는 문제가 발생하고 import하는 순서에 따라 먼저 import한 스타일이 무시되게 된다. 또한 같은 기본 스타일이 2번 중복되는 것은 불필요한 코드이기도 하다
+
+아래의 예에서 먼저 import된 `@repo/ui/styles.css`보다 나중에 import된 `globals.css`이 우선이 된다. 
+
+```
+import "@repo/ui/styles.css"; // 1. ui 패키지의 tailwind css 스타일 가져오기
+import "../src/globals.css"; // 2. 사용하는 앱의 tailwind css 스타일 가져오기
+```
+
+
+
+1. tailwind 공통 설정에서 preflight 비활성화하기
+
+```typescript
+// path: packages/tailwind-config/tailwind.config.ts
+import type { Config } from "tailwindcss";
+
+const config: Omit<Config, "content"> = {
+  theme: {
+    extend: {
+	 ...
+    },
+  },
+  plugins: [],
+  corePlugins: {
+    preflight: false,
+  },
+};
+export default config;
+
+```
+
+2. ui 패키지의 tailwind 설정에서만 preflight 활성화하기
+
+```typescript
+// path: packages/ui/tailwind.config.ts
+import sharedConfig from "@repo/tailwind-config";
+import type { Config } from "tailwindcss";
+import animatePlugin from "tailwindcss-animate";
+import defaultTheme from "tailwindcss/defaultTheme";
+
+const config: Config = {
+  content: ["./src/**/*.tsx", "./src/**/*.ts"],
+  presets: [sharedConfig],
+  plugins: [animatePlugin],
+  prefix: "u-",
+  theme: {
+    extend: {
+      ...
+    },
+  },
+  corePlugins: {
+    preflight: true,
+  },
+};
+
+export default config;
+
+```
+
+
+
+
+
