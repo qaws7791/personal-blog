@@ -28,3 +28,5 @@ export const SOCIALS: Socials = [
     HREF: "https://github.com/qaws7791",
   },
 ];
+
+export const QUOTES = ["Everything is amazing and nobody is happy - Louis C K"];
