@@ -21,12 +21,7 @@ body {
   @apply text-white/75;
 }
 
-header {
-  @apply fixed left-0 right-0 top-0 z-50 py-3;
-  @apply bg-neutral-900/75;
-  @apply saturate-200 backdrop-blur-sm border-b border-transparent transition-all
-}
-html.scrolled header {
+html.scrolled #global-header {
   @apply border-neutral-800
 }
 
@@ -34,28 +29,17 @@ main {
   @apply flex-1 py-24;
 }
 
-footer {
-  @apply py-6 text-sm;
-}
-
-article {
-  @apply prose prose-neutral max-w-full prose-invert prose-img:mx-auto prose-img:my-auto;
-  @apply prose-headings:font-semibold;
-  @apply prose-headings:text-white;
-
-}
-
-article g.root {
+.prose g.root {
   @apply leading-normal
 }
 
 @layer utilities {
-  article a {
+  .prose a {
     @apply font-sans text-current underline underline-offset-[3px];
     @apply decoration-white/30;
     @apply transition-colors duration-300 ease-in-out;
   }
-  article a:hover {
+  .prose a:hover {
     @apply text-white;
     @apply decoration-white/50;
   }

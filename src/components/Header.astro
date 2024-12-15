@@ -19,7 +19,11 @@ const navItems = [
 ];
 ---
 
-<header transition:persist>
+<div
+  id="global-header"
+  transition:persist
+  class="fixed left-0 right-0 top-0 z-50 border-b border-transparent bg-neutral-900/75 py-3 saturate-200 backdrop-blur-sm transition-all"
+>
   <Container>
     <div class="flex flex-wrap justify-between gap-y-2">
       <div class="relative flex items-center gap-4">
@@ -108,4 +112,4 @@ const navItems = [
       </div>
     </div>
   </Container>
-</header>
+</div>

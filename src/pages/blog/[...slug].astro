@@ -53,44 +53,48 @@ const { Content, headings } = await post.render();
 
 <Layout title={post.data.title} description={post.data.description}>
   <Container>
-    <div class="my-10 space-y-1">
-      <h1 class="animate text-3xl font-semibold text-white">
-        {post.data.title}
-      </h1>
-      <p class="text-lg">
-        {post.data.description}
-      </p>
-      <div class="mt-1 flex gap-1">
-        {
-          post.data.tags.map((tag) => (
-            <a
-              href={`/tags/${tag}`}
-              class="rounded-full border border-white/20 px-2 py-0.5 text-xs text-gray-400"
-            >
-              {tag}
-            </a>
-          ))
-        }
-      </div>
-      <div class="animate flex items-center gap-1.5">
-        <div class="font-base text-sm">
-          <FormattedDate date={post.data.date} />
+    <article
+      class="prose prose-neutral prose-invert max-w-full prose-headings:font-semibold prose-headings:text-white prose-img:mx-auto prose-img:my-auto"
+    >
+      <header class="my-10 space-y-1">
+        <h1 class="animate text-3xl font-semibold text-white">
+          {post.data.title}
+        </h1>
+        <p class="text-lg">
+          {post.data.description}
+        </p>
+        <div class="mt-1 flex gap-1">
+          {
+            post.data.tags.map((tag) => (
+              <a
+                href={`/tags/${tag}`}
+                class="rounded-full border border-white/20 px-2 py-0.5 text-xs text-gray-400"
+              >
+                {tag}
+              </a>
+            ))
+          }
         </div>
-        &bull;
-        <div class="font-base flex items-center gap-1 text-sm">
-          {readingTime(post.body)}
+        <div class="animate flex items-center gap-1.5">
+          <div class="font-base text-sm">
+            <FormattedDate date={post.data.date} />
+          </div>
+          &bull;
+          <div class="font-base flex items-center gap-1 text-sm">
+            {readingTime(post.body)}
+          </div>
         </div>
-      </div>
-    </div>
-    {headings.length > 0 && <TableOfContents headings={headings} />}
-    <article class="animate">
-      <Content components={{ callout: GithubCallout }} />
-      <div class="mt-24">
-        <PostNavigation prevPost={prevPost} nextPost={nextPost} />
-      </div>
-      <div class="mt-24">
-        <Giscus />
-      </div>
+      </header>
+      {headings.length > 0 && <TableOfContents headings={headings} />}
+      <section class="animate">
+        <Content components={{ callout: GithubCallout }} />
+        <div class="mt-24">
+          <PostNavigation prevPost={prevPost} nextPost={nextPost} />
+        </div>
+        <div class="mt-24">
+          <Giscus />
+        </div>
+      </section>
     </article>
   </Container>
 </Layout>
