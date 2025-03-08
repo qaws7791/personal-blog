@@ -34,12 +34,12 @@ main {
 }
 
 @layer utilities {
-  .prose a {
+  .prose .content a {
     @apply font-sans text-current underline underline-offset-[3px];
     @apply decoration-white/30;
     @apply transition-colors duration-300 ease-in-out;
   }
-  .prose a:hover {
+  .prose .content a:hover {
     @apply text-white;
     @apply decoration-white/50;
   }
