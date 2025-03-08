@@ -237,11 +237,9 @@ age는 userSchema에 정의되어 있지 않으므로 무시됩니다.
 */
 ```
 
-
 ## 프론트엔드 API 응답의 유효성 검사하기
 
 프론트엔드에서 API 응답의 유효성을 검사할 때도 zod를 사용할 수 있습니다.
-
 
 ```typescript
 import { z } from "zod";
@@ -272,4 +270,26 @@ fetchUser(1)
       console.error(error);
     }
   });
-````
+```
+
+## 페이지 SearchParams 유효성 검사하기
+
+Next.js에서 페이지 쿼리 파라미터를 유효성 검사할 때도 zod를 사용할 수 있습니다.
+
+```typescript
+const ParamsSchema = z.object({
+  search: z.string().optional().default(""),
+  filter: z.enum(["all", "public", "private"]).optional().default("all"),
+  sort: z.enum(["name", "date"]).optional().default("name"),
+  
+});
+
+export default async function ItemsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const params = ParamsSchema.parse(await searchParams);
+  ...
+ }
+```
