@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 html {
   overflow-y: auto;
@@ -22,7 +20,7 @@ body {
 }
 
 html.scrolled #global-header {
-  @apply border-neutral-800
+  @apply border-neutral-800;
 }
 
 main {
@@ -30,7 +28,7 @@ main {
 }
 
 .prose g.root {
-  @apply leading-normal
+  @apply leading-normal;
 }
 
 @layer utilities {
@@ -64,7 +62,7 @@ html.scrolled #back-to-top {
 
 /* shiki config */
 pre {
-  @apply border py-5 border-white/20;
+  @apply border border-white/20 py-5;
 }
 
 :root {
@@ -83,11 +81,11 @@ pre {
 
 /* copy code button on codeblocks */
 .copy-code {
-  @apply absolute right-3 top-3 grid size-9 place-content-center rounded border  text-center duration-300 ease-in-out border-white/20 bg-neutral-900 text-white/75;
+  @apply absolute right-3 top-3 grid size-9 place-content-center rounded border  border-white/20 bg-neutral-900 text-center text-white/75 duration-300 ease-in-out;
 }
 
 .copy-code:hover {
-  @apply transition-colors bg-[#232323];
+  @apply bg-[#232323] transition-colors;
 }
 
 .copy-code:active {
@@ -97,7 +95,6 @@ pre {
 .tab-content.active {
   @apply flex;
 }
-
 
 .tab {
   @apply cursor-pointer rounded-full p-2 px-4;
