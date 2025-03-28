@@ -1,5 +1,5 @@
 ---
-import "../styles/global.css";
+import "../styles/theme.css";
 import { ViewTransitions } from "astro:transitions";
 
 import "@fontsource-variable/noto-sans-kr";
@@ -54,6 +54,13 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
 
 <script is:inline>
   function init() {
+    const theme = window.matchMedia("(prefers-color-scheme: dark)");
+    const html = document.documentElement;
+    theme.onchange = function (e) {
+      html.setAttribute("data-theme", e.matches ? "dark" : "light");
+    };
+    html.setAttribute("data-theme", theme.matches ? "dark" : "light");
+
     onScroll();
     animate();
     addCopyCodeButtons();
