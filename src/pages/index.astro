@@ -14,7 +14,7 @@ const blog = (await getCollection("blog"))
 
 <Layout title={HOME.TITLE} description={HOME.DESCRIPTION}>
   <Container>
-    <aside data-pagefind-ignore>
+    <div data-pagefind-ignore class="mt-16">
       <h1 class="animate font-semibold text-white">Refetch 소개</h1>
       <div class="space-y-16">
         <section>
@@ -73,6 +73,6 @@ const blog = (await getCollection("blog"))
           </li>
         </ul>
       </section>
-    </aside>
+    </div>
   </Container>
 </Layout>
