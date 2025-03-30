@@ -2,7 +2,6 @@
 import { type CollectionEntry, getCollection } from "astro:content";
 import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
-import FormattedDate from "@components/FormattedDate.astro";
 import { readingTime } from "@lib/utils";
 import PostNavigation from "@components/PostNavigation.astro";
 import TableOfContents from "@components/TableOfContents.astro";
@@ -76,9 +75,15 @@ const { Content, headings } = await post.render();
           }
         </div>
         <div class="animate flex items-center gap-1.5">
-          <div class="font-base text-sm">
-            <FormattedDate date={post.data.date} />
-          </div>
+          <time class="font-base text-sm">
+            {
+              post.data.date.toLocaleDateString("ko-KR", {
+                month: "long",
+                day: "2-digit",
+                year: "numeric",
+              })
+            }
+          </time>
           &bull;
           <div class="font-base flex items-center gap-1 text-sm">
             {readingTime(post.body)}

@@ -2,7 +2,6 @@
 import { type CollectionEntry, getCollection } from "astro:content";
 import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
-import ArrowCard from "@components/ArrowCard.astro";
 import { BLOG } from "@consts";
 
 const data = (await getCollection("blog"))
@@ -23,22 +22,45 @@ const posts = data.reduce((acc: Acc, post) => {
 }, {});
 
 const years = Object.keys(posts).sort((a, b) => parseInt(b) - parseInt(a));
+
+const pageTitle = "Posts";
+const pageDescription = "All posts in the blog";
 ---
 
 <Layout title={BLOG.TITLE} description={BLOG.DESCRIPTION}>
   <Container>
+    <div class="my-6 space-y-1">
+      <h1 class="animate text-3xl font-semibold">
+        {pageTitle}
+      </h1>
+      <p class="animate text-text-secondary text-lg">
+        {pageDescription}
+      </p>
+    </div>
     <aside data-pagefind-ignore>
       <div class="space-y-10">
         <div class="space-y-4">
           {
             years.map((year) => (
               <section class="animate space-y-4">
-                <div class="ml-0.5 font-semibold text-white">{year}년</div>
+                <div class="ml-0.5">
+                  <h2 class="text-nowrap text-xl font-semibold">{year}년</h2>
+                </div>
                 <div>
-                  <ul class="not-prose flex flex-col gap-4">
+                  <ul class="not-prose flex flex-col">
                     {posts[year].map((post) => (
                       <li>
-                        <ArrowCard entry={post} />
+                        <a
+                          href={`/blog/${post.slug}`}
+                          class="group flex flex-col gap-1 rounded-md py-2 md:flex-row md:items-baseline md:gap-2"
+                        >
+                          <span class="text-text-secondary w-24 text-sm">
+                            {post.data.date.toLocaleDateString()}
+                          </span>
+                          <h3 class="text-lg font-semibold group-hover:underline">
+                            {post.data.title}
+                          </h3>
+                        </a>
                       </li>
                     ))}
                   </ul>

@@ -1,6 +1,4 @@
 ---
-import ArrowCard from "@components/ArrowCard.astro";
-import BackToPrevious from "@components/BackToPrevious.astro";
 import Container from "@components/Container.astro";
 import Layout from "@layouts/Layout.astro";
 import { getCollection } from "astro:content";
@@ -33,7 +31,7 @@ const { tag } = Astro.params;
 
 <Layout title={tag} description="Posts tagged with {tag}">
   <Container>
-    <BackToPrevious href="/tags">태그 목록으로 가기</BackToPrevious>
+    <a href="/tags">태그 목록으로 가기</a>
     <div class="my-6 space-y-1">
       <h1 class="animate text-3xl font-semibold text-white">
         {tag}
@@ -51,7 +49,7 @@ const { tag } = Astro.params;
                 {
                   posts.map((post) => (
                     <li>
-                      <ArrowCard entry={post} />
+                      <span>{post.data.title}</span>
                     </li>
                   ))
                 }

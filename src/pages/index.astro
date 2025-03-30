@@ -2,7 +2,6 @@
 import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
 import { SITE, HOME, SOCIALS } from "@consts";
-import ArrowCard from "@components/ArrowCard.astro";
 import Link from "@components/Link.astro";
 import { getCollection } from "astro:content";
 
@@ -15,62 +14,38 @@ const blog = (await getCollection("blog"))
 <Layout title={HOME.TITLE} description={HOME.DESCRIPTION}>
   <Container>
     <div data-pagefind-ignore class="mt-16">
-      <h1 class="animate font-semibold text-white">Refetch 소개</h1>
-      <div class="space-y-16">
+      <h1 class="animate text-xl font-semibold">소개</h1>
+      <div class="mt-4 space-y-16">
         <section>
-          <article class="space-y-4">
-            <span class="animate">
-              <p>
-                Refetch is personal blog for sharing my thoughts and
-                experiences.
-              </p>
-              <p>Refetch는 제 생각과 경험을 공유하는 개인 블로그입니다.</p>
-            </span>
+          <article class="animate text-text-secondary space-y-4">
+            <p>Refetch는 제 생각과 경험을 공유하는 개인 블로그입니다.</p>
           </article>
         </section>
       </div>
 
       <section class="animate mt-12 space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-y-2">
-          <h2 class="font-semibold text-white">최근 글</h2>
-          <Link href="/blog">모든 글 보기</Link>
+          <h2 class="text-xl font-semibold">최근 글</h2>
+          <Link href="/blog" underline>모든 글 보기</Link>
         </div>
-        <ul class="not-prose flex flex-col gap-4">
+        <ul class="not-prose flex flex-col">
           {
             blog.map((post) => (
               <li>
-                <ArrowCard entry={post} />
-              </li>
-            ))
-          }
-        </ul>
-      </section>
-
-      <section class="animate mt-12 space-y-4">
-        <h2 class="font-semibold text-white">Social Links</h2>
-        <ul class="not-prose flex flex-wrap gap-2">
-          {
-            SOCIALS.map((SOCIAL) => (
-              <li class="flex gap-x-2 text-nowrap">
-                <Link
-                  href={SOCIAL.HREF}
-                  external
-                  aria-label={`${SITE.TITLE} on ${SOCIAL.NAME}`}
+                <a
+                  href={`/blog/${post.slug}`}
+                  class="group flex flex-col gap-1 rounded-md py-2 md:flex-row md:items-baseline md:gap-2"
                 >
-                  {SOCIAL.NAME}
-                </Link>
-                {"/"}
+                  <h3 class="text-lg font-semibold group-hover:underline">
+                    {post.data.title}
+                  </h3>
+                  <span class="text-text-secondary text-sm">
+                    {post.data.date.toLocaleDateString()}
+                  </span>
+                </a>
               </li>
             ))
           }
-          <li class="line-clamp-1">
-            <Link
-              href={`mailto:${SITE.EMAIL}`}
-              aria-label={`Email ${SITE.TITLE}`}
-            >
-              {SITE.EMAIL}
-            </Link>
-          </li>
         </ul>
       </section>
     </div>

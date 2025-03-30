@@ -71,14 +71,15 @@
   --black: #000000;
 }
 
-[data-theme="light"] {
+html {
   --text: var(--gray-900);
-  --text-secondary: var(--gray-800);
-  --text-disabled: var(--gray-700);
+  --text-secondary: var(--gray-600);
+  --text-disabled: var(--gray-500);
   --link: var(--blue-600);
   --link-hover: var(--blue-700);
   --link-active: var(--blue-800);
   --bg: var(--white);
+  --bg-hover: var(--gray-50);
   --bg-inverse: var(--gray-900);
   --bg-surface: var(--gray-50);
   --bg-surface-hover: var(--gray-100);
@@ -86,16 +87,18 @@
   --border: var(--gray-300);
   --border-hover: var(--gray-400);
   --border-disabled: var(--gray-200);
+  --primary: var(--blue-500);
 }
 
 [data-theme="dark"] {
   --text: var(--gray-50);
-  --text-secondary: var(--gray-100);
+  --text-secondary: var(--gray-300);
   --text-disabled: var(--gray-200);
   --link: var(--blue-400);
   --link-hover: var(--blue-300);
   --link-active: var(--blue-200);
   --bg: var(--gray-900);
+  --bg-hover: var(--gray-800);
   --bg-inverse: var(--white);
   --bg-surface: var(--gray-800);
   --bg-surface-hover: var(--gray-700);
@@ -113,6 +116,7 @@
   --color-link-hover: var(--link-hover);
   --color-link-active: var(--link-active);
   --color-bg: var(--bg);
+  --color-bg-hover: var(--bg-hover);
   --color-bg-inverse: var(--bg-inverse);
   --color-bg-surface: var(--bg-surface);
   --color-bg-surface-hover: var(--bg-surface-hover);
@@ -120,6 +124,8 @@
   --color-border: var(--border);
   --color-border-hover: var(--border-hover);
   --color-border-disabled: var(--border-disabled);
+  --font-sans: "Noto Sans KR Variable", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 body {
@@ -138,12 +144,6 @@ body {
 html,
 body {
   @apply size-full;
-}
-
-
-
-html.scrolled #global-header {
-  @apply border-neutral-800;
 }
 
 main {

@@ -26,13 +26,13 @@ const pageDescription = "All tags in the blog";
     </div>
     <aside data-pagefind-ignore>
       <div
-        class="not-prose animate flex flex-wrap items-center justify-between gap-4"
+        class="not-prose animate flex flex-wrap items-center justify-center gap-4"
       >
         {
           tags.map((tag) => (
             <a
               href={`/tags/${tag}`}
-              class="flex items-center gap-1 rounded-3xl border border-white/20 bg-neutral-900/50 px-5 py-2 text-sm transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
+              class="bg-bg-surface flex items-center gap-1 rounded-3xl px-5 py-2 text-sm transition-colors duration-300 ease-in-out"
             >
               <div class="font-semibold">
                 {tag}{" "}

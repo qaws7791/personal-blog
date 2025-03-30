@@ -6,11 +6,11 @@ import Search from "astro-pagefind/components/Search";
   <div
     transition:persist
     id="backdrop"
-    class="invisible fixed left-0 top-0 z-50 flex h-screen w-full justify-center bg-black/50 p-6"
+    class="invisible fixed left-0 top-0 z-50 flex h-screen w-full justify-center bg-black/30 p-6"
   >
     <div
       id="pagefind-container"
-      class="mt-14 flex h-fit max-h-[80%] w-full max-w-screen-md flex-col overflow-auto rounded-xl border border-white/20 bg-neutral-900 p-2 px-4 py-3 shadow-lg"
+      class="bg-bg border-border mt-14 flex h-fit max-h-[80%] w-full max-w-screen-md flex-col overflow-auto rounded-xl border p-2 px-4 py-3 shadow-lg"
     >
       <Search
         id="search"
@@ -21,7 +21,9 @@ import Search from "astro-pagefind/components/Search";
           resetStyles: false,
         }}
       />
-      <div class="prose-invert mr-2 pb-1 pt-4 text-right text-xs">
+      <div
+        class="prose-invert mr-2 pb-1 pt-4 text-right text-sm font-medium opacity-60"
+      >
         닫으려면 <span class="prose prose-invert text-xs"
           ><kbd class="">Esc</kbd></span
         > 키를 누르거나 검색 창 바깥을 클릭하세요.
@@ -102,12 +104,12 @@ import Search from "astro-pagefind/components/Search";
     --pagefind-ui-scale: 0.75;
     --pagefind-ui-border-width: 1px;
     --pagefind-ui-border-radius: 0.5rem;
-    --pagefind-ui-font: "Hahmlet Variable", sans-serif;
-    --pagefind-ui-primary: #d4d4d4;
-    --pagefind-ui-text: #d4d4d4;
-    --pagefind-ui-background: #171717;
-    --pagefind-ui-border: #404040;
-    --pagefind-ui-tag: #f5f5f5;
+    --pagefind-ui-font: "Noto Sans KR Variable", sans-serif;
+    --pagefind-ui-primary: var(--primary);
+    --pagefind-ui-text: var(--text);
+    --pagefind-ui-background: var(--bg);
+    --pagefind-ui-border: var(--border);
+    --pagefind-ui-tag: var(--primary);
   }
 
   #search input {
@@ -125,5 +127,9 @@ import Search from "astro-pagefind/components/Search";
   #search .pagefind-ui__message {
     padding: 0;
     padding-bottom: 0.75rem;
+  }
+  #search .pagefind-ui__search-input::placeholder {
+    opacity: 0.5;
+    color: var(--text-disabled);
   }
 </style>
