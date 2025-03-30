@@ -3,7 +3,7 @@ import Container from "@components/Container.astro";
 import Layout from "@layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
-const allPosts = (await getCollection("blog"))
+const allPosts = (await getCollection("articles"))
   .filter((post) => !post.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
@@ -11,13 +11,13 @@ const tags = [...new Set(allPosts.map((post) => post.data.tags).flat())];
 
 const pageTitle = "Tags";
 
-const pageDescription = "All tags in the blog";
+const pageDescription = "All tags in the Blog";
 ---
 
 <Layout title={pageTitle} description="All tags">
   <Container>
     <div class="my-6 space-y-1">
-      <h1 class="animate text-3xl font-semibold text-white">
+      <h1 class="animate text-3xl font-semibold">
         {pageTitle}
       </h1>
       <p class="animate text-lg">

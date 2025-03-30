@@ -2,14 +2,14 @@
 import { type CollectionEntry, getCollection } from "astro:content";
 import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
-import { BLOG } from "@consts";
+import { ARTICLES } from "@consts";
 
-const data = (await getCollection("blog"))
+const data = (await getCollection("articles"))
   .filter((post) => !post.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 type Acc = {
-  [year: string]: CollectionEntry<"blog">[];
+  [year: string]: CollectionEntry<"articles">[];
 };
 
 const posts = data.reduce((acc: Acc, post) => {
@@ -27,7 +27,7 @@ const pageTitle = "Posts";
 const pageDescription = "All posts in the blog";
 ---
 
-<Layout title={BLOG.TITLE} description={BLOG.DESCRIPTION}>
+<Layout title={ARTICLES.TITLE} description={ARTICLES.DESCRIPTION}>
   <Container>
     <div class="my-6 space-y-1">
       <h1 class="animate text-3xl font-semibold">
@@ -51,7 +51,7 @@ const pageDescription = "All posts in the blog";
                     {posts[year].map((post) => (
                       <li>
                         <a
-                          href={`/blog/${post.slug}`}
+                          href={`/articles/${post.slug}`}
                           class="group flex flex-col gap-1 rounded-md py-2 md:flex-row md:items-baseline md:gap-2"
                         >
                           <span class="text-text-secondary w-24 text-sm">

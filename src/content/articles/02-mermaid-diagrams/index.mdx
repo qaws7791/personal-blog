@@ -8,14 +8,13 @@ tags: ["markdown", "mermaid", "diagrams"]
 ## Flowcharts
 
 ```mermaid
-flowchart TD
-    A[Start] --> B{Is it?}
-    B -- Yes --> C[OK]
-    C --> D[Rethink]
-    D --> B
-    B -- No ----> E[End]
+flowchart LR
+    A["Start"] -- Some text --> B("Continue")
+    B --> C{"Evaluate"}
+    C -- One --> D["Option 1"]
+    C -- Two --> E["Option 2"]
+    C -- Three --> F["fa:fa-car Option 3"]
 ```
-
 
 ## Sequence diagrams
 
@@ -79,18 +78,6 @@ stateDiagram-v2
     Crash --> [*]
 ```
 
-## Entity Relationship Diagrams
-
-```mermaid
----
-title: Order example
----
-erDiagram
-    CUSTOMER ||--o{ ORDER : places
-    ORDER ||--|{ LINE-ITEM : contains
-    CUSTOMER }|..|{ DELIVERY-ADDRESS : uses
-```
-
 ## User Journey Diagrams
 
 ```mermaid
@@ -118,7 +105,6 @@ gantt
         Task in Another :2014-01-12, 12d
         another task    :24d
 ```
-
 
 ## Pie charts
 
@@ -150,4 +136,3 @@ mindmap
       Pen and paper
       Mermaid
 ```
-
