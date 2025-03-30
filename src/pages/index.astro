@@ -26,14 +26,14 @@ const blog = (await getCollection("blog"))
       <section class="animate mt-12 space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-y-2">
           <h2 class="text-xl font-semibold">최근 글</h2>
-          <Link href="/blog" underline>모든 글 보기</Link>
+          <Link href="/articles" underline>모든 글 보기</Link>
         </div>
         <ul class="not-prose flex flex-col">
           {
             blog.map((post) => (
               <li>
                 <a
-                  href={`/blog/${post.slug}`}
+                  href={`/articles/${post.slug}`}
                   class="group flex flex-col gap-1 rounded-md py-2 md:flex-row md:items-baseline md:gap-2"
                 >
                   <h3 class="text-lg font-semibold group-hover:underline">
