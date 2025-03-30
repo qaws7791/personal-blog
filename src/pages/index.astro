@@ -5,7 +5,7 @@ import { SITE, HOME, SOCIALS } from "@consts";
 import Link from "@components/Link.astro";
 import { getCollection } from "astro:content";
 
-const blog = (await getCollection("blog"))
+const articles = (await getCollection("articles"))
   .filter((post) => !post.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, SITE.NUM_POSTS_ON_HOMEPAGE);
@@ -30,7 +30,7 @@ const blog = (await getCollection("blog"))
         </div>
         <ul class="not-prose flex flex-col">
           {
-            blog.map((post) => (
+            articles.map((post) => (
               <li>
                 <a
                   href={`/articles/${post.slug}`}
