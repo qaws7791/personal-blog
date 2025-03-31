@@ -52,29 +52,9 @@ const { Content, headings } = await post.render();
 
 <Layout title={post.data.title} description={post.data.description}>
   <Container>
-    <article
-      class="prose prose-neutral prose-invert max-w-full prose-headings:font-semibold prose-headings:text-white prose-img:mx-auto prose-img:my-auto"
-    >
+    <article class="">
       <header class="animate my-10 space-y-1">
-        <h1 class="text-3xl font-semibold text-white">
-          {post.data.title}
-        </h1>
-        <p class="text-lg">
-          {post.data.description}
-        </p>
-        <div class="mt-1 flex gap-1">
-          {
-            post.data.tags.map((tag) => (
-              <a
-                href={`/tags/${tag}`}
-                class="rounded-full border border-white/20 px-2 py-0.5 text-xs text-gray-400"
-              >
-                {tag}
-              </a>
-            ))
-          }
-        </div>
-        <div class="animate flex items-center gap-1.5">
+        <div class="animate text-text-disabled mt-2 flex items-center gap-2">
           <time class="font-base text-sm">
             {
               post.data.date.toLocaleDateString("ko-KR", {
@@ -84,14 +64,34 @@ const { Content, headings } = await post.render();
               })
             }
           </time>
-          &bull;
+          <span class="font-base text-sm">•</span>
           <div class="font-base flex items-center gap-1 text-sm">
             {readingTime(post.body)}
           </div>
         </div>
+        <h1 class="text-3xl font-semibold">
+          {post.data.title}
+        </h1>
+        <p class="text-text-secondary text-lg">
+          {post.data.description}
+        </p>
+        <div class="not-prose flex gap-1">
+          {
+            post.data.tags.map((tag) => (
+              <a
+                href={`/tags/${tag}`}
+                class="text-text-secondary px-3 py-1 text-sm hover:underline"
+              >
+                #{tag}
+              </a>
+            ))
+          }
+        </div>
       </header>
       {headings.length > 0 && <TableOfContents headings={headings} />}
-      <section class="animate content">
+      <section
+        class="animate content prose prose-neutral mt-8 max-w-full dark:prose-invert prose-headings:font-semibold prose-img:mx-auto prose-img:my-auto"
+      >
         <Content components={{ callout: GithubCallout }} />
       </section>
       <section class="animate">
@@ -105,3 +105,46 @@ const { Content, headings } = await post.render();
     </article>
   </Container>
 </Layout>
+<script>
+  /**
+   * @params {HTMLCollectionOf<HTMLElement>} graphs
+   */
+
+  async function renderDiagrams() {
+    const graphs = document.getElementsByClassName("mermaid");
+    console.log("graphs", graphs);
+    if (document.getElementsByClassName("mermaid").length === 0) {
+      return;
+    }
+    const { default: mermaid } = await import("mermaid");
+    mermaid.initialize({
+      startOnLoad: false,
+      fontFamily: "var(--sans-font)",
+      // @ts-ignore This works, but TS expects a enum for some reason
+      theme:
+        document.documentElement.dataset.theme === "dark" ? "dark" : "default",
+      look: "handDrawn",
+    });
+    Array.from(graphs).forEach(async (graph, index) => {
+      const content = graph.getAttribute("data-content");
+      if (!content) return;
+      const id = "mermaid-graph-" + index;
+      const result = await mermaid.render(id, content);
+      graph.innerHTML = result.svg;
+    });
+  }
+
+  renderDiagrams();
+  document.addEventListener("astro:after-swap", () => renderDiagrams());
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === "data-theme") {
+        renderDiagrams();
+      }
+    });
+  });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+</script>

@@ -4,8 +4,8 @@ import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import pagefind from "astro-pagefind";
+import mermaid from "./src/plugins/mermaid";
 
-import remarkMermaid from "remark-mermaidjs";
 import { remarkGithubCallouts } from "./src/plugins/remark-github-callouts";
 
 // https://astro.build/config
@@ -15,17 +15,11 @@ export default defineConfig({
     shikiConfig: {
       theme: "one-dark-pro",
     },
-    remarkPlugins: [
-      remarkGithubCallouts,
-      [
-        remarkMermaid,
-        {
-          mermaidConfig: {
-            theme: "dark",
-          },
-        },
-      ],
-    ],
+    syntaxHighlight: {
+      type: "shiki",
+      excludeLangs: ["mermaid"],
+    },
+    remarkPlugins: [remarkGithubCallouts, mermaid],
   },
   vite: {
     plugins: [tailwindcss()],

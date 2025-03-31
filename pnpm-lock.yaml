@@ -41,12 +41,12 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      mermaid:
+        specifier: ^11.6.0
+        version: 11.6.0
       playwright:
         specifier: ^1.51.1
         version: 1.51.1
-      remark-mermaidjs:
-        specifier: ^7.0.0
-        version: 7.0.0(playwright@1.51.1)
       sharp:
         specifier: ^0.33.5
         version: 0.33.5
@@ -64,8 +64,8 @@ importers:
         version: 5.0.0
     devDependencies:
       '@tailwindcss/typography':
-        specifier: ^0.5.13
-        version: 0.5.13(tailwindcss@4.0.17)
+        specifier: ^0.5.16
+        version: 0.5.16(tailwindcss@4.0.17)
       pagefind:
         specifier: ^1.1.1
         version: 1.1.1
@@ -357,10 +357,6 @@ packages:
 
   '@fontsource-variable/noto-sans-kr@5.2.5':
     resolution: {integrity: sha512-dIJyVPIBRJXtvaFmQ6GKCV93J9Fx3O2Ym5C3gDRcz5zLpEigrnlEfBnsXBUv4aDBHEF/gm/Q07d40dddGxFytg==}
-
-  '@fortawesome/fontawesome-free@6.6.0':
-    resolution: {integrity: sha512-60G28ke/sXdtS9KZCpZSHHkCbdsOGEhIUGlwq6yhY74UpTiToIh8np7A8yphhM4BWsvNFtIvLpi4co+h9Mr9Ow==}
-    engines: {node: '>=6'}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -756,10 +752,10 @@ packages:
     resolution: {integrity: sha512-B4OaUIRD2uVrULpAD1Yksx2+wNarQr2rQh65nXqaqbLY1jCd8fO+3KLh/+TH4Hzh2NTHQvgxVbPdUDOtLk7vAw==}
     engines: {node: '>= 10'}
 
-  '@tailwindcss/typography@0.5.13':
-    resolution: {integrity: sha512-ADGcJ8dX21dVVHIwTRgzrcunY6YY9uSlAHHGVKvkA+vLc5qLwEszvKts40lx7z0qc4clpjclwLeK5rVCV2P/uw==}
+  '@tailwindcss/typography@0.5.16':
+    resolution: {integrity: sha512-0wDLwCVF5V3x3b1SGXPCDcdsbDHMBe+lkFzBRaHeLvNi+nrrnZ1lA18u+OTWO8iSWU2GxUOCvlXtDuqftc1oiA==}
     peerDependencies:
-      tailwindcss: '>=3.0.0 || insiders'
+      tailwindcss: '>=3.0.0 || insiders || >=4.0.0-alpha.20 || >=4.0.0-beta.1'
 
   '@tailwindcss/vite@4.0.17':
     resolution: {integrity: sha512-HJbBYDlDVg5cvYZzECb6xwc1IDCEM3uJi3hEZp3BjZGCNGJcTsnCpan+z+VMW0zo6gR0U6O6ElqU1OoZ74Dhww==}
@@ -1496,12 +1492,6 @@ packages:
   hachure-fill@0.5.2:
     resolution: {integrity: sha512-3GKBOn+m2LX9iq+JC1064cSFprJY4jL1jCXTcpnfER5HYE2l/4EfWSGzkPa/ZDBmYI0ZOEj5VHV/eKnPGkHuOg==}
 
-  hast-util-from-dom@5.0.0:
-    resolution: {integrity: sha512-d6235voAp/XR3Hh5uy7aGLbM3S4KamdW0WEgOaU1YoewnuYw4HXb5eRtv9g65m/RFGEfUY1Mw4UqCc5Y8L4Stg==}
-
-  hast-util-from-html-isomorphic@2.0.0:
-    resolution: {integrity: sha512-zJfpXq44yff2hmE0XmwEOzdWin5xwH+QIhMLOScpX91e/NSGPsAzNCvLQDIEPyO2TXi+lBmU6hjLIhV8MwP2kw==}
-
   hast-util-from-html@2.0.3:
     resolution: {integrity: sha512-CUSRHXyKjzHov8yKsQjGOElXy/3EKpyX56ELnkHH34vDVw1N1XSQ1ZcAvTyAPtGqLTuKP/uxM+aLkSPqF/EtMw==}
 
@@ -1825,14 +1815,6 @@ packages:
   merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
-
-  mermaid-isomorphic@3.0.2:
-    resolution: {integrity: sha512-5Gpr0cG+59MKYQD93fwZaGge0Le/MPQw/u27E/P6fmWxqRDVS6XmkD8L4FkZ8KVIKVz+ElcoZdWgTjLti/rtyw==}
-    peerDependencies:
-      playwright: '1'
-    peerDependenciesMeta:
-      playwright:
-        optional: true
 
   mermaid@11.6.0:
     resolution: {integrity: sha512-PE8hGUy1LDlWIHWBP05SFdqUHGmRcCcK4IzpOKPE35eOw+G9zZgcnMpyunJVUEOgb//KBORPjysKndw8bFLuRg==}
@@ -2225,15 +2207,6 @@ packages:
 
   remark-mdx@3.0.1:
     resolution: {integrity: sha512-3Pz3yPQ5Rht2pM5R+0J2MrGoBSrzf+tJG94N+t/ilfdh8YLyyKYtidAYwTveB20BoHAcwIopOUqhcmh2F7hGYA==}
-
-  remark-mermaidjs@7.0.0:
-    resolution: {integrity: sha512-daW4LzAX1q3//SdRsTQ0ELyAXdy0yvJJQ2S0he5ddhZmnt8cyTv3QN536ezMY/OY4a3XGDMz+NU1SOSQ5xcYAA==}
-    deprecated: Use rehype-mermaid instead
-    peerDependencies:
-      playwright: '1'
-    peerDependenciesMeta:
-      playwright:
-        optional: true
 
   remark-parse@11.0.0:
     resolution: {integrity: sha512-FCxlKLNGknS5ba/1lmpYijMUzX2esxW5xQqjWxw2eHFfS2MSdaHVINFmhjo+qN1WhZhNimq0dZATN9pH0IDrpA==}
@@ -3081,8 +3054,6 @@ snapshots:
 
   '@fontsource-variable/noto-sans-kr@5.2.5': {}
 
-  '@fortawesome/fontawesome-free@6.6.0': {}
-
   '@iconify/types@2.0.0': {}
 
   '@iconify/utils@2.3.0':
@@ -3411,7 +3382,7 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.0.17
       '@tailwindcss/oxide-win32-x64-msvc': 4.0.17
 
-  '@tailwindcss/typography@0.5.13(tailwindcss@4.0.17)':
+  '@tailwindcss/typography@0.5.16(tailwindcss@4.0.17)':
     dependencies:
       lodash.castarray: 4.4.0
       lodash.isplainobject: 4.0.6
@@ -4305,19 +4276,6 @@ snapshots:
 
   hachure-fill@0.5.2: {}
 
-  hast-util-from-dom@5.0.0:
-    dependencies:
-      '@types/hast': 3.0.4
-      hastscript: 8.0.0
-      web-namespaces: 2.0.1
-
-  hast-util-from-html-isomorphic@2.0.0:
-    dependencies:
-      '@types/hast': 3.0.4
-      hast-util-from-dom: 5.0.0
-      hast-util-from-html: 2.0.3
-      unist-util-remove-position: 5.0.0
-
   hast-util-from-html@2.0.3:
     dependencies:
       '@types/hast': 3.0.4
@@ -4790,15 +4748,6 @@ snapshots:
       '@types/mdast': 4.0.4
 
   merge2@1.4.1: {}
-
-  mermaid-isomorphic@3.0.2(playwright@1.51.1):
-    dependencies:
-      '@fortawesome/fontawesome-free': 6.6.0
-      mermaid: 11.6.0
-    optionalDependencies:
-      playwright: 1.51.1
-    transitivePeerDependencies:
-      - supports-color
 
   mermaid@11.6.0:
     dependencies:
@@ -5375,19 +5324,6 @@ snapshots:
     dependencies:
       mdast-util-mdx: 3.0.0
       micromark-extension-mdxjs: 3.0.0
-    transitivePeerDependencies:
-      - supports-color
-
-  remark-mermaidjs@7.0.0(playwright@1.51.1):
-    dependencies:
-      '@types/mdast': 4.0.4
-      hast-util-from-html-isomorphic: 2.0.0
-      mermaid-isomorphic: 3.0.2(playwright@1.51.1)
-      unified: 11.0.5
-      unist-util-visit-parents: 6.0.1
-      vfile: 6.0.3
-    optionalDependencies:
-      playwright: 1.51.1
     transitivePeerDependencies:
       - supports-color
 
