@@ -1,30 +1,33 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import { type CollectionEntry } from "astro:content";
 import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
 import { ARTICLES } from "@consts";
+import { getAllArticles } from "@collections/articles";
 
-const data = (await getCollection("articles"))
-  .filter((post) => !post.data.draft)
+const data = (await getAllArticles())
+  .filter((article) => !article.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 type Acc = {
   [year: string]: CollectionEntry<"articles">[];
 };
 
-const posts = data.reduce((acc: Acc, post) => {
-  const year = post.data.date.getFullYear().toString();
+const articlesMap = data.reduce((acc: Acc, article) => {
+  const year = article.data.date.getFullYear().toString();
   if (!acc[year]) {
     acc[year] = [];
   }
-  acc[year].push(post);
+  acc[year].push(article);
   return acc;
 }, {});
 
-const years = Object.keys(posts).sort((a, b) => parseInt(b) - parseInt(a));
+const years = Object.keys(articlesMap).sort(
+  (a, b) => parseInt(b) - parseInt(a),
+);
 
 const pageTitle = "Posts";
-const pageDescription = "All posts in the blog";
+const pageDescription = "All articles in the blog";
 ---
 
 <Layout title={ARTICLES.TITLE} description={ARTICLES.DESCRIPTION}>
@@ -48,17 +51,24 @@ const pageDescription = "All posts in the blog";
                 </div>
                 <div>
                   <ul class="not-prose flex flex-col">
-                    {posts[year].map((post) => (
+                    {articlesMap[year].map((article) => (
                       <li>
                         <a
-                          href={`/articles/${post.slug}`}
+                          href={`/articles/${article.slug}`}
                           class="group flex flex-col gap-1 rounded-md py-2 md:flex-row md:items-baseline md:gap-2"
                         >
                           <span class="text-text-secondary w-24 text-sm">
-                            {post.data.date.toLocaleDateString()}
+                            {new Date(article.data.date).toLocaleDateString(
+                              "ko-KR",
+                              {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                              },
+                            )}
                           </span>
                           <h3 class="text-lg font-semibold group-hover:underline">
-                            {post.data.title}
+                            {article.data.title}
                           </h3>
                         </a>
                       </li>

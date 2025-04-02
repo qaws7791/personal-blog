@@ -1,5 +1,5 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import { type CollectionEntry } from "astro:content";
 import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
 import { readingTime } from "@lib/utils";
@@ -7,57 +7,36 @@ import PostNavigation from "@components/PostNavigation.astro";
 import TableOfContents from "@components/TableOfContents.astro";
 import Giscus from "@components/Giscus.astro";
 import GithubCallout from "@components/GithubCallout.astro";
+import {
+  getAllArticles,
+  getNextArticle,
+  getPreviousArticle,
+} from "@collections/articles";
 
 export async function getStaticPaths() {
-  const posts = (await getCollection("articles"))
-    .filter((post) => !post.data.draft)
-    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-  return posts.map((post) => ({
-    params: { slug: post.slug },
-    props: post,
+  const articles = await getAllArticles();
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: article,
   }));
 }
 type Props = CollectionEntry<"articles">;
 
-const posts = (await getCollection("articles"))
-  .filter((post) => !post.data.draft)
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const nextPost = getNextArticle(Astro.props.slug);
+const prevPost = getPreviousArticle(Astro.props.slug);
 
-function getNextPost() {
-  let postIndex;
-  for (const post of posts) {
-    if (post.slug === Astro.params.slug) {
-      postIndex = posts.indexOf(post);
-      return posts[postIndex + 1];
-    }
-  }
-}
-
-function getPrevPost() {
-  let postIndex;
-  for (const post of posts) {
-    if (post.slug === Astro.params.slug) {
-      postIndex = posts.indexOf(post);
-      return posts[postIndex - 1];
-    }
-  }
-}
-
-const nextPost = getNextPost();
-const prevPost = getPrevPost();
-
-const post = Astro.props;
-const { Content, headings } = await post.render();
+const article = Astro.props;
+const { Content, headings } = await article.render();
 ---
 
-<Layout title={post.data.title} description={post.data.description}>
+<Layout title={article.data.title} description={article.data.description}>
   <Container>
     <article class="">
       <header class="animate my-10 space-y-1">
         <div class="animate text-text-disabled mt-2 flex items-center gap-2">
           <time class="font-base text-sm">
             {
-              post.data.date.toLocaleDateString("ko-KR", {
+              article.data.date.toLocaleDateString("ko-KR", {
                 month: "long",
                 day: "2-digit",
                 year: "numeric",
@@ -66,18 +45,18 @@ const { Content, headings } = await post.render();
           </time>
           <span class="font-base text-sm">•</span>
           <div class="font-base flex items-center gap-1 text-sm">
-            {readingTime(post.body)}
+            {readingTime(article.body)}
           </div>
         </div>
         <h1 class="text-3xl font-semibold">
-          {post.data.title}
+          {article.data.title}
         </h1>
         <p class="text-text-secondary text-lg">
-          {post.data.description}
+          {article.data.description}
         </p>
         <div class="not-prose flex gap-1">
           {
-            post.data.tags.map((tag) => (
+            article.data.tags.map((tag) => (
               <a
                 href={`/tags/${tag}`}
                 class="text-text-secondary px-3 py-1 text-sm hover:underline"
