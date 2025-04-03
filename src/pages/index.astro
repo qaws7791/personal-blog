@@ -23,7 +23,7 @@ const articles = (await getAllArticles()).slice(0, SITE.NUM_POSTS_ON_HOMEPAGE);
       <section class="animate mt-12 space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-y-2">
           <h2 class="text-xl font-semibold">최근 글</h2>
-          <Link href="/articles" underline>모든 글 보기</Link>
+          <Link href="/articles">모든 글 보기</Link>
         </div>
         <ul class="not-prose flex flex-col">
           {
