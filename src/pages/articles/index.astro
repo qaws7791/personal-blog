@@ -4,7 +4,7 @@ import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
 import { ARTICLES } from "@consts";
 import { getAllArticles } from "@collections/articles";
-
+import FlowerSvg from "@assets/images/flower.svg";
 const data = (await getAllArticles())
   .filter((article) => !article.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -32,15 +32,18 @@ const pageDescription = "All articles in the blog";
 
 <Layout title={ARTICLES.TITLE} description={ARTICLES.DESCRIPTION}>
   <Container>
-    <div class="my-6 space-y-1">
-      <h1 class="animate text-3xl font-semibold">
-        {pageTitle}
-      </h1>
-      <p class="animate text-text-secondary text-lg">
-        {pageDescription}
-      </p>
+    <div class="my-6 flex space-y-1">
+      <FlowerSvg class="fill-text-secondary h-20 w-20" aria-label="꽃" />
+      <div class="flex flex-col justify-center gap-1">
+        <h1 class="animate text-3xl font-semibold">
+          {pageTitle}
+        </h1>
+        <p class="animate text-text-secondary text-lg">
+          {pageDescription}
+        </p>
+      </div>
     </div>
-    <aside data-pagefind-ignore>
+    <div data-pagefind-ignore class="mt-12">
       <div class="space-y-10">
         <div class="space-y-4">
           {
@@ -81,6 +84,6 @@ const pageDescription = "All articles in the blog";
           }
         </div>
       </div>
-    </aside>
+    </div>
   </Container>
 </Layout>
