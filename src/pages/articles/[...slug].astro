@@ -102,7 +102,6 @@ const { Content, headings } = await article.render();
       // @ts-ignore This works, but TS expects a enum for some reason
       theme:
         document.documentElement.dataset.theme === "dark" ? "dark" : "default",
-      look: "handDrawn",
     });
     Array.from(graphs).forEach(async (graph, index) => {
       const content = graph.getAttribute("data-content");
