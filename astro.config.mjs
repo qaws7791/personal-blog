@@ -10,10 +10,13 @@ import { remarkGithubCallouts } from "./src/plugins/remark-github-callouts";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://astro-micro.vercel.app",
+  site: "https://refetch.pages.dev",
   markdown: {
     shikiConfig: {
-      theme: "one-dark-pro",
+      themes: {
+        light: "one-light",
+        dark: "github-dark",
+      },
     },
     syntaxHighlight: {
       type: "shiki",
@@ -25,4 +28,7 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   integrations: [sitemap(), mdx(), pagefind()],
+  experimental: {
+    svg: true,
+  },
 });
