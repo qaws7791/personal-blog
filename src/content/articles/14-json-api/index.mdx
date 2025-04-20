@@ -15,17 +15,6 @@ JSON:API는 2013년 5월 Yehuda Katz가 초안 작성을 시작으로 2015년 5�
 
 JSON API는 JSON 기반의 응답을 사용하므로 JavaScript Object Notation(JSON) [RFC8259](https://tools.ietf.org/html/rfc8259)를 사용합니다. JSON API는 다음과 같은 구조를 가지고 있습니다.
 
-```json
-{
-  "data": {
-    "type": "articles",
-    "id": "1",
-    "attributes": {
-      "title": "JSON API",
-      "body": "JSON:API 1.1 버전을 기준으로 한 API 디자인 가이드"
-    }
-  }
-}
 ```plaintext
 GET /articles/1 HTTP/1.1
 Accept: application/vnd.api+json
