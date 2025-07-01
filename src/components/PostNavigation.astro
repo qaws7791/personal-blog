@@ -7,7 +7,7 @@ const { prevPost, nextPost } = Astro.props;
     prevPost?.slug ? (
       <a
         href={`/articles/${prevPost?.slug}`}
-        class="group relative flex flex-nowrap justify-end rounded-lg border border-white/20 px-4 py-4 pl-10 no-underline transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
+        class="border-border group relative flex flex-nowrap justify-end rounded-lg border px-4 py-4 pl-10 no-underline transition-colors duration-300 ease-in-out"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +28,7 @@ const { prevPost, nextPost } = Astro.props;
         </svg>
         <div class="text-right">
           <div class="font-semibold">이전 글</div>
-          <div class="text-sm text-white/50">{prevPost?.data.title}</div>
+          <div class="text-sm">{prevPost?.data.title}</div>
         </div>
       </a>
     ) : (
@@ -40,7 +40,7 @@ const { prevPost, nextPost } = Astro.props;
     nextPost?.slug ? (
       <a
         href={`/articles/${nextPost?.slug}`}
-        class="group relative flex flex-grow flex-row-reverse flex-nowrap justify-end rounded-lg border border-white/20 px-4 py-4 pr-10 no-underline transition-colors duration-300 ease-in-out hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white"
+        class="border-border group relative flex flex-grow flex-row-reverse flex-nowrap justify-end rounded-lg border px-4 py-4 pr-10 no-underline transition-colors duration-300 ease-in-out"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -61,7 +61,7 @@ const { prevPost, nextPost } = Astro.props;
         </svg>
         <div class="text-left">
           <div class="font-semibold">다음 글</div>
-          <div class="text-sm text-white/50">{nextPost?.data.description}</div>
+          <div class="text-sm">{nextPost?.data.description}</div>
         </div>
       </a>
     ) : (
