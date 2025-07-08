@@ -54,13 +54,30 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
 
 <script is:inline>
   function init() {
-    const theme = window.matchMedia("(prefers-color-scheme: dark)");
     const html = document.documentElement;
-    theme.onchange = function (e) {
-      html.setAttribute("data-theme", e.matches ? "dark" : "light");
-    };
-    html.setAttribute("data-theme", theme.matches ? "dark" : "light");
+    const savedTheme = localStorage.getItem('theme') || 'system';
+    
+    function applyTheme(theme) {
+      if (theme === 'system') {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        html.setAttribute('data-theme', systemTheme);
+      } else {
+        html.setAttribute('data-theme', theme);
+      }
+    }
+    
+    applyTheme(savedTheme);
+    
+    // 시스템 테마 변경 감지
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaQuery.addEventListener('change', () => {
+      const currentTheme = localStorage.getItem('theme') || 'system';
+      if (currentTheme === 'system') {
+        applyTheme('system');
+      }
+    });
   }
+  
   function animate() {
     const elements = document.querySelectorAll(".animate");
     elements.forEach((element) => {
@@ -69,6 +86,7 @@ const { title, description, image = "/blog-placeholder-1.jpg" } = Astro.props;
       }, 100);
     });
   }
+  
   init();
   document.addEventListener("DOMContentLoaded", animate);
   document.addEventListener("astro:after-swap", init);

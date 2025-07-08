@@ -1,0 +1,188 @@
+---
+---
+
+<div id="theme-toggle" class="relative">
+  <button
+    id="theme-button"
+    aria-label="Toggle theme"
+    class="hover:scale-120 box-content flex h-6 w-6 cursor-pointer items-center justify-center gap-1 rounded-full px-2 py-2 text-sm transition-all duration-200 ease-in-out"
+  >
+    <svg
+      id="sun-icon"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg
+      id="moon-icon"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="hidden"
+    >
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+    <svg
+      id="system-icon"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="hidden"
+    >
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+      <line x1="8" y1="21" x2="16" y2="21"></line>
+      <line x1="12" y1="17" x2="12" y2="21"></line>
+    </svg>
+  </button>
+  
+  <div 
+    id="theme-dropdown"
+    class="absolute right-0 top-full mt-2 w-40 bg-bg-surface border border-border rounded-lg shadow-lg hidden z-50"
+  >
+    <button
+      data-theme="light"
+      class="w-full px-4 py-2 text-left hover:bg-bg-surface-hover flex items-center gap-2 rounded-t-lg"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+      라이트 모드
+    </button>
+    <button
+      data-theme="dark"
+      class="w-full px-4 py-2 text-left hover:bg-bg-surface-hover flex items-center gap-2"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+      다크 모드
+    </button>
+    <button
+      data-theme="system"
+      class="w-full px-4 py-2 text-left hover:bg-bg-surface-hover flex items-center gap-2 rounded-b-lg"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+        <line x1="8" y1="21" x2="16" y2="21"></line>
+        <line x1="12" y1="17" x2="12" y2="21"></line>
+      </svg>
+      시스템 모드
+    </button>
+  </div>
+</div>
+
+<script>
+  function initThemeToggle() {
+    const themeButton = document.getElementById('theme-button');
+    const themeDropdown = document.getElementById('theme-dropdown');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+    const systemIcon = document.getElementById('system-icon');
+    const themeOptions = document.querySelectorAll('[data-theme]');
+    const html = document.documentElement;
+
+    let currentTheme = localStorage.getItem('theme') || 'system';
+
+    function updateIcon() {
+      sunIcon.classList.add('hidden');
+      moonIcon.classList.add('hidden');
+      systemIcon.classList.add('hidden');
+
+      if (currentTheme === 'light') {
+        sunIcon.classList.remove('hidden');
+      } else if (currentTheme === 'dark') {
+        moonIcon.classList.remove('hidden');
+      } else {
+        systemIcon.classList.remove('hidden');
+      }
+    }
+
+    function applyTheme(theme) {
+      if (theme === 'system') {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        html.setAttribute('data-theme', systemTheme);
+      } else {
+        html.setAttribute('data-theme', theme);
+      }
+    }
+
+    function setTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('theme', theme);
+      applyTheme(theme);
+      updateIcon();
+    }
+
+    // 초기 테마 적용
+    applyTheme(currentTheme);
+    updateIcon();
+
+    // 시스템 테마 변경 감지
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', () => {
+      if (currentTheme === 'system') {
+        applyTheme('system');
+      }
+    });
+
+    // 드롭다운 토글
+    themeButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      themeDropdown.classList.toggle('hidden');
+    });
+
+    // 드롭다운 외부 클릭 시 닫기
+    document.addEventListener('click', () => {
+      themeDropdown.classList.add('hidden');
+    });
+
+    // 테마 옵션 클릭
+    themeOptions.forEach(option => {
+      option.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const theme = option.dataset.theme;
+        setTheme(theme);
+        themeDropdown.classList.add('hidden');
+      });
+    });
+  }
+
+  // 초기 실행
+  initThemeToggle();
+  
+  // Astro 페이지 전환 시 재실행
+  document.addEventListener('astro:after-swap', initThemeToggle);
+</script>

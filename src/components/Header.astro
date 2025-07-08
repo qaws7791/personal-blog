@@ -1,6 +1,7 @@
 ---
 import Container from "@components/Container.astro";
 import Link from "@components/Link.astro";
+import ThemeToggle from "@components/ThemeToggle.astro";
 import { SITE } from "@consts";
 ---
 
@@ -35,6 +36,7 @@ import { SITE } from "@consts";
         </nav>
       </div>
       <div class="flex gap-2">
+        <ThemeToggle />
         <button
           id="magnifying-glass"
           aria-label="Search"
