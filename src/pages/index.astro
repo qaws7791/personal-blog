@@ -1,50 +1,101 @@
 ---
+import { type CollectionEntry } from "astro:content";
 import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
 import { SITE, HOME } from "@consts";
-import Link from "@components/Link.astro";
 import { getAllArticles } from "@collections/articles";
+import FlowerSvg from "@assets/images/flower.svg";
 
-const articles = (await getAllArticles()).slice(0, SITE.NUM_POSTS_ON_HOMEPAGE);
+const recentArticles = (await getAllArticles()).slice(
+  0,
+  SITE.NUM_POSTS_ON_HOMEPAGE,
+);
+const allArticles = (await getAllArticles())
+  .filter((article) => !article.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+type Acc = {
+  [year: string]: CollectionEntry<"articles">[];
+};
+
+const articlesMap = allArticles.reduce((acc: Acc, article) => {
+  const year = article.data.date.getFullYear().toString();
+  if (!acc[year]) {
+    acc[year] = [];
+  }
+  acc[year].push(article);
+  return acc;
+}, {});
+
+const years = Object.keys(articlesMap).sort(
+  (a, b) => parseInt(b) - parseInt(a),
+);
 ---
 
 <Layout title={HOME.TITLE} description={HOME.DESCRIPTION}>
   <Container>
     <div data-pagefind-ignore class="mt-16">
-      <h1 class="animate text-xl font-semibold">소개</h1>
-      <div class="mt-4 space-y-16">
-        <section>
-          <article class="animate text-text-secondary space-y-4">
-            <p>Refetch는 제 생각과 경험을 공유하는 개인 블로그입니다.</p>
-          </article>
-        </section>
+      <div class="flex gap-4">
+        <FlowerSvg
+          class="fill-text-secondary h-20 w-20 shrink-0"
+          aria-label="꽃"
+        />
+        <div class="flex flex-col">
+          <h1 class="animate text-xl font-semibold">소개</h1>
+          <p class="animate text-text-secondary mt-2 space-y-4">
+            Refetch는 제 생각과 경험을 공유하는 개인 블로그입니다.
+          </p>
+        </div>
       </div>
 
-      <section class="animate mt-12 space-y-6">
-        <div class="flex flex-wrap items-center justify-between gap-y-2">
-          <h2 class="text-xl font-semibold">최근 글</h2>
-          <Link href="/articles">모든 글 보기</Link>
+      <div class="my-6 mt-16 flex space-y-1">
+        <div class="flex flex-col justify-center gap-1">
+          <h2 class="animate text-2xl font-semibold">모든 글</h2>
         </div>
-        <ul class="not-prose flex flex-col">
-          {
-            articles.map((post) => (
-              <li>
-                <a
-                  href={`/articles/${post.slug}`}
-                  class="group flex flex-col gap-1 rounded-md py-2 md:flex-row md:items-baseline md:gap-2"
-                >
-                  <h3 class="text-lg font-semibold group-hover:underline">
-                    {post.data.title}
-                  </h3>
-                  <span class="text-text-secondary text-sm">
-                    {post.data.date.toLocaleDateString()}
-                  </span>
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+      </div>
+
+      <div class="mt-12">
+        <div class="space-y-10">
+          <div class="space-y-4">
+            {
+              years.map((year) => (
+                <section class="animate space-y-4">
+                  <div class="ml-0.5">
+                    <h3 class="text-nowrap text-xl font-semibold">{year}년</h3>
+                    <hr class="border-border mt-3 h-px w-full border-t-2 border-dashed" />
+                  </div>
+                  <div>
+                    <ul class="not-prose flex flex-col">
+                      {articlesMap[year].map((article) => (
+                        <li>
+                          <a
+                            href={`/articles/${article.slug}`}
+                            class="group flex flex-col gap-0 rounded-md py-2 md:flex-row md:items-baseline md:gap-2"
+                          >
+                            <time class="text-text-secondary w-24 text-sm">
+                              {new Date(article.data.date).toLocaleDateString(
+                                "ko-KR",
+                                {
+                                  year: "numeric",
+                                  month: "2-digit",
+                                  day: "2-digit",
+                                },
+                              )}
+                            </time>
+                            <h4 class="text-lg font-semibold group-hover:underline">
+                              {article.data.title}
+                            </h4>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </section>
+              ))
+            }
+          </div>
+        </div>
+      </div>
     </div>
   </Container>
 </Layout>
