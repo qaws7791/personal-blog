@@ -1,0 +1,572 @@
+---
+title: "Separating queries from fetching clients: Efficient API management in Next.js 15"
+description: "페칭 클라이언트와 쿼리 분리하기: Next.js 15에서의 효율적인 API 관리"
+date: "2025-07-24"
+tags: ["frontend", "api", "http-client", "axios", "nextjs"]
+draft: false
+---
+
+## 서론
+
+현대의 프론트엔드 개발에서 Next.js 15와 같은 풀스택 프레임워크는 서버 사이드 렌더링(SSR)과 클라이언트 사이드 렌더링(CSR)을 모두 지원합니다. 이러한 하이브리드 환경에서 API 호출을 효율적으로 관리하는 것은 중요한 과제입니다. 본 아티클에서는 팩토리 패턴과 의존성 주입을 활용하여 페칭 클라이언트와 쿼리 로직을 분리하는 방법을 살펴보겠습니다.
+
+## 문제 상황: SSR과 CSR의 차이점
+
+Next.js 15의 App Router에서는 서버 컴포넌트와 클라이언트 컴포넌트가 공존합니다. 각 환경에서 API 호출 시 다음과 같은 차이점이 있습니다:
+
+### 서버 사이드 (SSR)
+
+- Node.js 환경에서 실행
+- `process.env`를 통한 환경 변수 접근
+- 서버 간 통신을 위한 내부 URL 사용 가능
+- 쿠키, 헤더 등 서버 컨텍스트 활용
+
+### 클라이언트 사이드 (CSR)
+
+- 브라우저 환경에서 실행
+- `window`, `document` 등 브라우저 API 접근
+- CORS 정책 준수 필요
+- 브라우저 저장소(localStorage, sessionStorage) 활용
+
+## 기존 방식의 문제점
+
+일반적으로 개발자들은 서버와 클라이언트에서 각각 다른 API 호출 함수를 만듭니다:
+
+```typescript
+// 서버용 API 함수
+export async function getServerSideUser(id: string) {
+  const response = await axiosInstance.get(`${process.env.INTERNAL_API_URL}/users/${id}`, {
+    headers: {
+      'Authorization': `Bearer ${process.env.API_TOKEN}`
+    }
+  });
+  return response.data;
+}
+
+// 클라이언트용 API 함수
+export async function getClientSideUser(id: string) {
+  const token = localStorage.getItem('authToken');
+  const response = await axiosInstance.get(`/api/users/${id}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  return response.data;
+}
+```
+
+이 방식의 문제점:
+
+- **코드 중복**: 비슷한 로직이 두 번 작성됨
+- **유지보수성 저하**: 한 곳을 수정하면 다른 곳도 수정해야 함
+- **일관성 부족**: 서버와 클라이언트에서 다른 에러 처리나 데이터 변환 로직
+
+## 해결책: 팩토리 패턴과 의존성 주입
+
+### 1. HTTP 클라이언트 추상화
+
+먼저 HTTP 클라이언트를 추상화하는 인터페이스를 정의합니다:
+
+```typescript
+// types/http-client.ts
+export interface HttpClient {
+  get<T>(url: string, config?: RequestConfig): Promise<T>;
+  post<T>(url: string, data?: any, config?: RequestConfig): Promise<T>;
+  put<T>(url: string, data?: any, config?: RequestConfig): Promise<T>;
+  delete<T>(url: string, config?: RequestConfig): Promise<T>;
+}
+
+export interface RequestConfig {
+  headers?: Record<string, string>;
+  params?: Record<string, any>;
+  timeout?: number;
+}
+```
+
+### 2. 환경별 클라이언트 팩토리 구현
+
+#### 서버 사이드 클라이언트 팩토리
+
+```typescript
+// lib/http-clients/server-client.ts
+import axios, { AxiosInstance } from 'axios';
+import { HttpClient, RequestConfig } from '@/types/http-client';
+import { cookies } from 'next/headers'
+
+class ServerHttpClient implements HttpClient {
+  private client: AxiosInstance;
+
+  constructor() {
+    this.client = axios.create({
+      baseURL: process.env.INTERNAL_API_URL,
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true
+    });
+
+    // 서버 전용 인터셉터 설정
+    this.client.interceptors.request.use((config) => {
+      // 서버측 요청에 쿠키 자동 주입
+      const cookieStore = await cookies();
+      const cookieHeader = filteredCookies
+         .map(cookie => `${cookie.name}=${cookie.value}`)
+         .join('; ')
+      if (cookieHeader) {
+         config.headers.Cookie = cookieHeader;
+      }
+      return config;
+    });
+
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        // 서버 사이드 에러 로깅
+        console.error('[Server Error]:', error.message);
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  async get<T>(url: string, config?: RequestConfig): Promise<T> {
+    const response = await this.client.get(url, config);
+    return response.data;
+  }
+
+  async post<T>(url: string, data?: any, config?: RequestConfig): Promise<T> {
+    const response = await this.client.post(url, data, config);
+    return response.data;
+  }
+
+  async put<T>(url: string, data?: any, config?: RequestConfig): Promise<T> {
+    const response = await this.client.put(url, data, config);
+    return response.data;
+  }
+
+  async delete<T>(url: string, config?: RequestConfig): Promise<T> {
+    const response = await this.client.delete(url, config);
+    return response.data;
+  }
+}
+
+export function createServerHttpClient(): HttpClient {
+  return new ServerHttpClient();
+}
+```
+
+#### 클라이언트 사이드 클라이언트 팩토리
+
+```typescript
+// lib/http-clients/client-client.ts
+'use client';
+
+import axios, { AxiosInstance } from 'axios';
+import { HttpClient, RequestConfig } from '@/types/http-client';
+
+class ClientHttpClient implements HttpClient {
+  private client: AxiosInstance;
+
+  constructor() {
+    this.client = axios.create({
+      baseURL: '/api',
+      timeout: 8000,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true
+    });
+
+    // 클라이언트 전용 인터셉터 설정
+    this.client.interceptors.request.use((config) => {     
+      return config;
+    });
+
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        // 클라이언트 사이드 에러 처리
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  async get<T>(url: string, config?: RequestConfig): Promise<T> {
+    const response = await this.client.get(url, config);
+    return response.data;
+  }
+
+  async post<T>(url: string, data?: any, config?: RequestConfig): Promise<T> {
+    const response = await this.client.post(url, data, config);
+    return response.data;
+  }
+
+  async put<T>(url: string, data?: any, config?: RequestConfig): Promise<T> {
+    const response = await this.client.put(url, data, config);
+    return response.data;
+  }
+
+  async delete<T>(url: string, config?: RequestConfig): Promise<T> {
+    const response = await this.client.delete(url, config);
+    return response.data;
+  }
+}
+
+export function createClientHttpClient(): HttpClient {
+  return new ClientHttpClient();
+}
+```
+
+### 3. 환경 감지 및 클라이언트 팩토리 (선택사항)
+
+```typescript
+// lib/http-clients/factory.ts
+import { HttpClient } from '@/types/http-client';
+import { createServerHttpClient } from './server-client';
+import { createClientHttpClient } from './client-client';
+
+export function createHttpClient(): HttpClient {
+  // Next.js 15에서 서버/클라이언트 환경 감지
+  const isServer = typeof window === 'undefined';
+  
+  if (isServer) {
+    return createServerHttpClient();
+  } else {
+    return createClientHttpClient();
+  }
+}
+```
+
+### 4. 쿼리 함수 구현
+
+이제 환경에 독립적인 쿼리 함수를 작성할 수 있습니다:
+
+```typescript
+// lib/queries/user-queries.ts
+import { HttpClient } from '@/types/http-client';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+}
+
+export interface CreateUserData {
+  name: string;
+  email: string;
+}
+
+export class UserQueries {
+  constructor(private httpClient: HttpClient) {}
+
+  async getUser(id: string): Promise<User> {
+    return this.httpClient.get<User>(`/users/${id}`);
+  }
+
+  async getUsers(page: number = 1, limit: number = 10): Promise<{ users: User[]; total: number }> {
+    return this.httpClient.get<{ users: User[]; total: number }>('/users', {
+      params: { page, limit }
+    });
+  }
+
+  async createUser(userData: CreateUserData): Promise<User> {
+    return this.httpClient.post<User>('/users', userData);
+  }
+
+  async updateUser(id: string, userData: Partial<CreateUserData>): Promise<User> {
+    return this.httpClient.put<User>(`/users/${id}`, userData);
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    return this.httpClient.delete<void>(`/users/${id}`);
+  }
+}
+
+// 편의 함수
+export function createUserQueries(httpClient: HttpClient): UserQueries {
+  return new UserQueries(httpClient);
+}
+```
+
+## 실제 사용 예시
+
+- **서버측(서버 컴포넌트)**에서는 일반 함수를 사용하여 인스턴스를 가져옵니다.
+- **클라이언트 측(컴포넌트, 커스텀 훅)**에서는 hooks를 사용하여 인스턴스를 가져옵니다.
+
+### 서버 컴포넌트에서 사용
+
+```typescript
+// app/users/page.tsx (서버 컴포넌트)
+import { createHttpClient } from '@/lib/http-clients/factory';
+import { createUserQueries } from '@/lib/queries/user-queries';
+
+export default async function UsersPage() {
+  const httpClient = createHttpClient();
+  // 또는 const httpClient = createHttpClient();
+  const userQueries = createUserQueries(httpClient);
+  
+  try {
+    const { users } = await userQueries.getUsers(1, 20);
+    
+    return (
+      <div>
+        <h1>사용자 목록</h1>
+        {users.map(user => (
+          <div key={user.id}>
+            <h3>{user.name}</h3>
+            <p>{user.email}</p>
+          </div>
+        ))}
+      </div>
+    );
+  } catch (error) {
+    return <div>사용자 정보를 불러올 수 없습니다.</div>;
+  }
+}
+```
+
+### 클라이언트 컴포넌트에서 사용
+
+```typescript
+// components/UserForm.tsx (클라이언트 컴포넌트)
+'use client';
+
+import { useState } from 'react';
+import { createHttpClient } from '@/lib/http-clients/factory';
+import { createUserQueries, CreateUserData } from '@/lib/queries/user-queries';
+
+export default function UserForm() {
+  const [userData, setUserData] = useState<CreateUserData>({
+    name: '',
+    email: ''
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const httpClient = createHttpClient();
+      // 또는 const httpClient = createClientHttpClient();
+      const userQueries = createUserQueries(httpClient);
+      
+      await userQueries.createUser(userData);
+      alert('사용자가 생성되었습니다!');
+      setUserData({ name: '', email: '' });
+    } catch (error) {
+      alert('사용자 생성에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="이름"
+        value={userData.name}
+        onChange={(e) => setUserData(prev => ({ ...prev, name: e.target.value }))}
+      />
+      <input
+        type="email"
+        placeholder="이메일"
+        value={userData.email}
+        onChange={(e) => setUserData(prev => ({ ...prev, email: e.target.value }))}
+      />
+      <button type="submit" disabled={loading}>
+        {loading ? '생성 중...' : '사용자 생성'}
+      </button>
+    </form>
+  );
+}
+```
+
+### Custom Hook으로 추상화
+
+React Query나 SWR과 함께 사용할 때 더욱 효과적입니다:
+
+```typescript
+// hooks/useUserQueries.ts
+'use client';
+
+import { useMemo } from 'react';
+import { createHttpClient } from '@/lib/http-clients/factory';
+import { createUserQueries } from '@/lib/queries/user-queries';
+
+export function useUserQueries() {
+  return useMemo(() => {
+    const httpClient = createHttpClient();
+    return createUserQueries(httpClient);
+  }, []);
+}
+```
+
+```typescript
+// hooks/useUsers.ts
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
+import { useUserQueries } from './useUserQueries';
+
+export function useUsers(page: number = 1, limit: number = 10) {
+  const userQueries = useUserQueries();
+  
+  return useQuery({
+    queryKey: ['users', page, limit],
+    queryFn: () => userQueries.getUsers(page, limit),
+  });
+}
+
+export function useUser(id: string) {
+  const userQueries = useUserQueries();
+  
+  return useQuery({
+    queryKey: ['user', id],
+    queryFn: () => userQueries.getUser(id),
+    enabled: !!id,
+  });
+}
+```
+
+## 고급 패턴: 환경별 설정 확장
+
+더 복잡한 요구사항을 위해 설정을 확장할 수 있습니다:
+
+```typescript
+// lib/http-clients/config.ts
+export interface HttpClientConfig {
+  baseURL: string;
+  timeout: number;
+  retryCount: number;
+  headers: Record<string, string>;
+}
+
+export function getServerConfig(): HttpClientConfig {
+  return {
+    baseURL: process.env.INTERNAL_API_URL!,
+    timeout: 15000,
+    retryCount: 3,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.API_TOKEN}`,
+      'User-Agent': `NextJS-Server/${process.env.npm_package_version}`,
+    },
+  };
+}
+
+export function getClientConfig(): HttpClientConfig {
+  return {
+    baseURL: '/api',
+    timeout: 8000,
+    retryCount: 2,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+}
+```
+
+## 테스트 전략
+
+이 패턴은 테스트하기도 쉽습니다:
+
+```typescript
+// __tests__/user-queries.test.ts
+import { UserQueries } from '@/lib/queries/user-queries';
+import { HttpClient } from '@/types/http-client';
+
+// Mock HTTP Client
+const mockHttpClient: HttpClient = {
+  get: jest.fn(),
+  post: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn(),
+};
+
+describe('UserQueries', () => {
+  let userQueries: UserQueries;
+
+  beforeEach(() => {
+    userQueries = new UserQueries(mockHttpClient);
+    jest.clearAllMocks();
+  });
+
+  it('should get user by id', async () => {
+    const mockUser = { id: '1', name: 'John', email: 'john@example.com', createdAt: '2023-01-01' };
+    (mockHttpClient.get as jest.Mock).mockResolvedValue(mockUser);
+
+    const result = await userQueries.getUser('1');
+
+    expect(mockHttpClient.get).toHaveBeenCalledWith('/users/1');
+    expect(result).toEqual(mockUser);
+  });
+
+  it('should create user', async () => {
+    const userData = { name: 'Jane', email: 'jane@example.com' };
+    const mockCreatedUser = { id: '2', ...userData, createdAt: '2023-01-01' };
+    (mockHttpClient.post as jest.Mock).mockResolvedValue(mockCreatedUser);
+
+    const result = await userQueries.createUser(userData);
+
+    expect(mockHttpClient.post).toHaveBeenCalledWith('/users', userData);
+    expect(result).toEqual(mockCreatedUser);
+  });
+});
+```
+
+## 성능 최적화 고려사항
+
+### 1. 클라이언트 인스턴스 재사용
+
+클라이언트 인스턴스는 각 사용자의 브라우저에서 초기화되기 때문에 모듈의 전역변수를 통해 간단하게 싱글턴을 구현하여도 안전합니다.
+
+```typescript
+// lib/http-clients/singleton.ts
+import { HttpClient } from '@/types/http-client';
+import { createHttpClient } from './factory';
+
+let clientInstance: HttpClient | null = null;
+
+export function getHttpClientInstance(): HttpClient {
+  if (!clientInstance) {
+    clientInstance = createHttpClient();
+  }
+  return clientInstance;
+}
+```
+
+## 결론: 이러한 쿼리 분리의 이점
+
+### 1. **Dependency Injection**
+
+- API 함수들이 `AxiosInstance`를 첫 번째 매개변수로 받아 의존성을 주입받습니다.
+- 따라서 쿼리 함수는 외부의 영향을 받지 않고 쿼리를 만드는 역할에만 신경씁니다.
+- 의존성 주입으로 인해 테스트 코드를 작성하기 쉬워졌습니다.
+
+### 2. **Factory Pattern**
+
+- `createClientAxios()`와 `createServerAxios()`가 각각 환경에 맞는 인스턴스를 생성합니다.
+- 각 팩토리는 해당 환경에 특화된 설정과 인터셉터를 적용합니다. 따라서 하나의 인스턴스 안에서 `(typeof window === 'undefined)`와 같은 방법으로 실행 환경에 따라 분기 처리를 하지 않아도 됩니다.
+- 예를 들어 클라이언트 인스턴스는 로컬 스토리지를 접근할 수 있고, 서버 인스턴스는 쿠키를 접근할 수 있습니다.
+
+### 3. **DRY (Don't Repeat Yourself) 원칙**
+
+서버 사이드와 클라이언트 사이드에서 동일한 쿼리 로직을 재사용함으로써 코드 중복을 방지합니다.
+
+### 4. **타입 안전성**
+
+- 완전한 TypeScript 지원으로 컴파일 타임에 오류를 잡을 수 있습니다.
+
+### 5. 확장성
+
+- 새로운 환경을 위한 페칭 클라이언트 인스턴스를 추가하기 쉬워졌습니다.
+- 환경 별로 설정을 관리하기 용이해졌습니다.
+
+Next.js 15의 App Router 환경에서 이 패턴을 적용하면, 복잡한 풀스택 애플리케이션에서도 일관되고 유지보수하기 쉽게 API 관리가 가능합니다.
