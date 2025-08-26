@@ -1,0 +1,397 @@
+---
+title: "resilient zod schema design"
+description: "Zod 스키마 견고하게 설계하는 법"
+date: "2025-08-11"
+tags: ["zod", "schema","typescript"]
+draft: false
+---
+
+안녕하세요! 오늘은 제가 몇 달간 TypeScript 프로젝트에서 Zod를 사용하면서 겪었던 시행착오들과, 그 과정에서 터득한 견고한 스키마 설계 노하우를 공유하려고 합니다.
+
+처음 Zod를 접했을 때는 "아, 이거 그냥 타입 체크만 하는 거구나" 정도로 생각했는데요. 실제로 프로덕션 환경에서 사용하다 보니 예상치 못한 데이터 때문에 앱이 터지는 경우가 정말 많더라고요. 특히 외부 API를 연동하거나 사용자 입력을 처리할 때 말이죠.
+
+그래서 오늘은 제가 실무에서 배운, **진짜 견고한 Zod 스키마를 만드는 방법**들을 차근차근 설명해드릴게요!
+
+## 1. 방어적 파싱: 예상하지 못한 것들을 예상하기
+
+처음에 저도 이런 실수를 많이 했어요. 모든 필드를 필수로 만들어놓고, 나중에 API 응답에서 일부 필드가 없어서 앱이 크래시 나는 경우 말이죠.
+
+```typescript
+// ❌ 초기에 제가 짰던 너무 엄격한 스키마
+const userSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string().email(),
+  avatar: z.string().url(), // 이게 없으면 터져요!
+  preferences: z.object({
+    theme: z.string(),
+    notifications: z.boolean(),
+  }), // 이것도 없으면 터져요!
+})
+```
+
+이렇게 하면 API에서 `avatar`나 `preferences`가 없을 때 바로 에러가 나더라고요. 그래서 지금은 이렇게 바꿨습니다:
+
+```typescript
+// ✅ 현재 제가 사용하는 방어적 스키마
+const userSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string().email(),
+  // 중요하지 않은 필드들은 optional로!
+  avatar: z.string().url().optional(),
+  preferences: z.object({
+    theme: z.string().default('light'),
+    notifications: z.boolean().default(true),
+  }).optional(),
+})
+```
+
+이렇게 하니까 훨씬 안정적이더라고요. 필수적인 데이터만 강제하고, 나머지는 유연하게 처리하는 게 핵심입니다.
+
+## 2. 기본값 활용하기: 설정의 마법
+
+설정 관련 스키마를 만들 때 특히 유용한 팁인데요, 기본값을 잘 활용하면 정말 견고한 시스템을 만들 수 있어요.
+
+```typescript
+const configSchema = z.object({
+  retries: z.number().int().min(0).default(3),
+  timeout: z.number().positive().default(5000),
+  enabled: z.boolean().default(true),
+  logLevel: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+})
+
+// 사용할 때는 이렇게!
+const config = configSchema.parse({}) // 모든 기본값이 적용됨
+console.log(config.retries) // 3
+```
+
+이렇게 하면 설정 파일이 비어있거나 일부 설정이 없어도 앱이 정상적으로 동작해요. 정말 편리하죠!
+
+## 3. 데이터 변환과 정제: 더러운 데이터를 깔끔하게
+
+실제 운영 환경에서는 정말 다양한 형태의 데이터가 들어와요. 특히 사용자 입력이나 외부 API에서 오는 데이터는 예측불가능하죠.
+
+```typescript
+// 실제로 겪었던 케이스들을 반영한 스키마
+const apiSchema = z.object({
+  // 문자열로 온 숫자를 자동 변환
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  // "true", "false" 문자열도 boolean으로 변환
+  active: z.coerce.boolean().default(true),
+})
+
+// 이메일 정제 예시 (정말 유용해요!)
+const emailSchema = z.string()
+  .trim() // 앞뒤 공백 제거
+  .toLowerCase() // 소문자로 변환
+  .email()
+  .transform(email => {
+    // Gmail의 +alias 제거 (선택사항)
+    return email.replace(/\+.*@/, '@')
+  })
+```
+
+이런 변환 로직을 넣어두면 정말 많은 엣지케이스를 자동으로 처리할 수 있어요. 특히 이메일 처리는 정말 추천드립니다!
+
+## 4. 미지의 필드 처리하기: 진화하는 API 대응법
+
+API가 업데이트되면서 새로운 필드가 추가되는 경우가 정말 많죠. 이런 상황에 대비하는 방법도 중요해요.
+
+```typescript
+// 새로운 필드가 추가되어도 괜찮은 스키마
+const apiResponseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string().email(),
+}).passthrough() // 알려지지 않은 필드도 통과시킴
+
+// 반대로 보안이 중요한 사용자 입력은 엄격하게
+const userInputSchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+}).strict() // 추가 필드가 있으면 에러
+```
+
+저는 외부 API 응답에는 `passthrough()`를, 사용자 입력에는 `strict()`를 사용해요. 보안과 유연성의 균형을 맞추는 거죠.
+
+## 5. 스키마 조합하기: 재사용성 극대화
+
+프로젝트가 커질수록 비슷한 스키마를 계속 만들게 되더라고요. 그래서 베이스 스키마를 만들어서 재사용하는 패턴을 사용해요.
+
+```typescript
+// 모든 엔티티의 기본 구조
+const baseEntitySchema = z.object({
+  id: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+})
+
+// 사용자 스키마는 베이스를 확장
+const userSchema = baseEntitySchema.extend({
+  name: z.string().min(1, '이름은 필수입니다'),
+  email: z.string().email('올바른 이메일을 입력해주세요'),
+  role: z.enum(['user', 'admin']).default('user'),
+})
+
+// 게시글 스키마도 마찬가지
+const postSchema = baseEntitySchema.extend({
+  title: z.string().min(1),
+  content: z.string(),
+  authorId: z.string().uuid(),
+})
+```
+
+이렇게 하면 코드 중복도 줄이고, 일관성도 유지할 수 있어서 정말 좋아요!
+
+## 6. 다형성 데이터 처리: discriminated union의 힘
+
+이벤트나 알림 같은 다양한 타입의 데이터를 처리할 때 정말 유용한 패턴이에요.
+
+```typescript
+const eventSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('user_created'),
+    userId: z.string(),
+    email: z.string().email(),
+    registrationSource: z.string(),
+  }),
+  z.object({
+    type: z.literal('order_placed'),
+    orderId: z.string(),
+    amount: z.number().positive(),
+    currency: z.string().length(3),
+  }),
+  z.object({
+    type: z.literal('payment_failed'),
+    orderId: z.string(),
+    errorCode: z.string(),
+    retryCount: z.number().int().min(0),
+  }),
+])
+
+// TypeScript가 자동으로 타입을 좁혀줘요!
+function handleEvent(event: z.infer<typeof eventSchema>) {
+  switch (event.type) {
+    case 'user_created':
+      // 여기서는 userId, email 등에 접근 가능
+      console.log(`새 사용자: ${event.email}`)
+      break
+    case 'order_placed':
+      // 여기서는 orderId, amount 등에 접근 가능
+      console.log(`주문 완료: ${event.amount}`)
+      break
+    // ...
+  }
+}
+```
+
+## 7. 부분 업데이트 패턴: CRUD의 완성
+
+CRUD 작업을 할 때 생성과 수정에서 같은 스키마를 사용하기 어려운 경우가 많죠. 이런 패턴을 사용해보세요:
+
+```typescript
+// 생성할 때 사용하는 완전한 스키마
+const createUserSchema = z.object({
+  name: z.string().min(1, '이름은 필수입니다'),
+  email: z.string().email('올바른 이메일을 입력해주세요'),
+  role: z.enum(['user', 'admin']),
+  department: z.string().min(1),
+})
+
+// 수정할 때는 모든 필드를 선택적으로
+const updateUserSchema = createUserSchema.partial()
+
+// 더 세밀한 제어가 필요하다면
+const updateUserSchema2 = z.object({
+  name: z.string().min(1).optional(),
+  email: z.string().email().optional(),
+  // role은 수정 불가
+  department: z.string().min(1).optional(),
+})
+```
+
+## 8. 복잡한 유효성 검사: refine의 활용
+
+때로는 단순한 타입 체크로는 부족한 경우가 있어요. 비밀번호 정책이나 비즈니스 로직 검증 같은 경우 말이죠.
+
+```typescript
+const passwordSchema = z.string()
+  .min(8, '비밀번호는 최소 8자 이상이어야 합니다')
+  .refine(pwd => /[A-Z]/.test(pwd), {
+    message: '대문자를 포함해야 합니다'
+  })
+  .refine(pwd => /[a-z]/.test(pwd), {
+    message: '소문자를 포함해야 합니다'
+  })
+  .refine(pwd => /[0-9]/.test(pwd), {
+    message: '숫자를 포함해야 합니다'
+  })
+  .refine(pwd => /[^A-Za-z0-9]/.test(pwd), {
+    message: '특수문자를 포함해야 합니다'
+  })
+
+// 복합 조건 검증도 가능해요
+const userRegistrationSchema = z.object({
+  username: z.string().min(3),
+  email: z.string().email(),
+  password: passwordSchema,
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: '비밀번호가 일치하지 않습니다',
+  path: ['confirmPassword'], // 에러가 표시될 필드 지정
+})
+```
+
+## 9. 안전한 파싱: safeParse의 현명한 활용
+
+실제 운영에서는 파싱이 실패할 수 있다는 걸 항상 염두에 두어야 해요. `safeParse()`를 활용한 에러 처리 패턴을 소개할게요.
+
+```typescript
+const parseUserSafely = (data: unknown) => {
+  const result = userSchema.safeParse(data)
+  
+  if (!result.success) {
+    // 로깅을 위한 상세 에러 정보
+    console.error('사용자 데이터 파싱 실패:', {
+      errors: result.error.format(),
+      receivedData: data,
+      timestamp: new Date().toISOString(),
+    })
+    
+    // 모니터링 시스템에 알림 (Sentry, DataDog 등)
+    // reportError('USER_PARSE_FAILURE', result.error)
+    
+    // 기본값 반환 또는 null 반환
+    return null
+  }
+  
+  return result.data
+}
+
+// 폴백 전략이 있는 버전
+const parseUserWithFallback = (data: unknown) => {
+  const fullResult = userSchema.safeParse(data)
+  if (fullResult.success) return fullResult.data
+  
+  // 최소한의 데이터로 폴백
+  const minimalSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+  })
+  
+  const minimalResult = minimalSchema.safeParse(data)
+  if (minimalResult.success) {
+    return {
+      ...minimalResult.data,
+      email: '', // 기본값 제공
+      role: 'user' as const,
+      preferences: {},
+    }
+  }
+  
+  throw new Error('사용자 데이터를 파싱할 수 없습니다')
+}
+```
+
+## 10. 스키마 버전 관리: 진화하는 데이터 구조
+
+시간이 지나면서 스키마가 변경되는 건 피할 수 없어요. 이를 우아하게 처리하는 방법을 알아볼게요.
+
+```typescript
+// 버전별 스키마 관리
+const userSchemaV1 = z.object({
+  name: z.string(),
+  email: z.string().email(),
+})
+
+const userSchemaV2 = userSchemaV1.extend({
+  preferences: z.object({
+    theme: z.enum(['light', 'dark']).default('light'),
+    notifications: z.boolean().default(true),
+  }).optional(),
+})
+
+const userSchemaV3 = userSchemaV2.extend({
+  profile: z.object({
+    bio: z.string().optional(),
+    website: z.string().url().optional(),
+  }).optional(),
+})
+
+// 버전에 따른 파싱
+const parseUser = (data: unknown, version: number = 3) => {
+  switch (version) {
+    case 1: return userSchemaV1.parse(data)
+    case 2: return userSchemaV2.parse(data)
+    case 3: return userSchemaV3.parse(data)
+    default: return userSchemaV3.parse(data)
+  }
+}
+
+// 마이그레이션 로직 포함
+const migratedUserSchema = z.preprocess((data: any) => {
+  // V1에서 V2로 마이그레이션
+  if (data.fullName && !data.name) {
+    data.name = data.fullName
+    delete data.fullName
+  }
+  
+  // V2에서 V3로 마이그레이션
+  if (data.bio && !data.profile) {
+    data.profile = { bio: data.bio }
+    delete data.bio
+  }
+  
+  return data
+}, userSchemaV3)
+```
+
+## 마무리: 실전 팁들
+
+지금까지 제가 실무에서 터득한 Zod 스키마 설계 노하우들을 공유했는데요, 마지막으로 몇 가지 추가 팁을 드릴게요:
+
+### 테스트는 필수
+
+스키마를 만들었으면 반드시 다양한 케이스로 테스트해보세요:
+
+- 정상 데이터
+- 잘못된 데이터
+- 엣지케이스 (빈 문자열, null, undefined)
+- 예상치 못한 추가 필드
+- 미래의 데이터 구조
+
+### 에러 메시지 한국어화
+
+사용자에게 보여줄 에러라면 한국어로 작성하는 것도 중요해요:
+
+```typescript
+const userSchema = z.object({
+  email: z.string().email('올바른 이메일 주소를 입력해주세요'),
+  age: z.number().min(18, '만 18세 이상만 가입 가능합니다'),
+})
+```
+
+### 성능도 고려하기
+
+너무 복잡한 refine 로직은 성능에 영향을 줄 수 있어요. 정말 필요한 경우에만 사용하세요.
+
+### 문서화하기
+
+복잡한 스키마는 주석으로 의도를 명확히 해두세요:
+
+```typescript
+const orderSchema = z.object({
+  // 주문 ID - UUID v4 형식
+  id: z.string().uuid(),
+  // 결제 금액 - 원화 기준, 소수점 불허
+  amount: z.number().int().positive(),
+  // 주문 상태 - 비즈니스 로직에 따라 제한됨
+  status: z.enum(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']),
+})
+```
+
+이렇게 견고한 Zod 스키마를 만들면 런타임 에러도 줄이고, 개발자 경험도 훨씬 좋아져요. 처음에는 조금 번거로워 보일 수 있지만, 한 번 습관이 되면 정말 든든한 안전망이 되어줄 거예요.
+
+여러분도 이런 패턴들을 활용해서 더 안정적인 애플리케이션을 만들어보세요! 혹시 다른 좋은 팁이 있다면 댓글로 공유해주시면 감사하겠습니다. 😊
