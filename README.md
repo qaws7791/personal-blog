@@ -12,3 +12,11 @@ Micro still comes with everything great about Nano — full type safety, a sitem
 
 - 이미지 파일 이름에 공백을 넣지 마세요. 이미지가 표시되지 않습니다
 - 글 내용에 1단계 헤딩 태그(#)를 사용하지 마세요. 제목은 title로 최상단에 정의하세요
+
+## Scripts
+
+블로그 글 작성을 위한 다양한 자동화 스크립트입니다. 자세한 내용은 [scripts/README.md](./scripts/README.md)를 참고하세요.
+
+```bash
+pnpm create-article
+```
